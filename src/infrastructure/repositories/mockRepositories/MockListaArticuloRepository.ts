@@ -1,31 +1,44 @@
 import { IListaArticuloRepository } from '../../../domain/repositories/IListaArticuloRepository';
 import { ListaArticulo, EstadoArticulo } from '../../../domain/entities/ListaArticulo';
+import * as Crypto from 'expo-crypto';
+
+// Importamos las IDs de nuestros otros mocks para garantizar la concordancia perfecta
+import { MOCK_UUID_LISTA_1 } from './MockListaComprasRepository';
+import { 
+  MOCK_UUID_ART_ZAPATOS, 
+  MOCK_UUID_ART_ZANAHORIA, 
+  MOCK_UUID_ART_PAPAS 
+} from './MockArticuloRepository';
+import { 
+  MOCK_UUID_MED_UNIDADES, 
+  MOCK_UUID_MED_GRAMOS 
+} from './MockMedidaRepository';
 
 export class MockListaArticuloRepository implements IListaArticuloRepository {
   private fakeDatabase: ListaArticulo[] = [
     {
-      id: 'la1',
+      id: Crypto.randomUUID(),
       estado: 'pendiente',
       cantidad: 1,
-      id_articulo: 'a1', // Zapatos
-      id_lista: '1',     // Supermercado
-      id_medida: 'm3'    // Unidades (o par)
+      id_articulo: MOCK_UUID_ART_ZAPATOS, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_UNIDADES 
     },
     {
-      id: 'la2',
+      id: Crypto.randomUUID(),
       estado: 'comprado',
       cantidad: 50,
-      id_articulo: 'a2', // Zanahorias
-      id_lista: '1',
-      id_medida: 'm2'    // Gramos/Centavos
+      id_articulo: MOCK_UUID_ART_ZANAHORIA, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_GRAMOS 
     },
     {
-      id: 'la3',
+      id: Crypto.randomUUID(),
       estado: 'cancelado',
       cantidad: 30,
-      id_articulo: 'a3', // Papas
-      id_lista: '1',
-      id_medida: 'm3'
+      id_articulo: MOCK_UUID_ART_PAPAS, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_UNIDADES
     }
   ];
 
@@ -45,7 +58,7 @@ export class MockListaArticuloRepository implements IListaArticuloRepository {
 
   async create(entity: Omit<ListaArticulo, 'id'>): Promise<ListaArticulo> {
     const nuevo: ListaArticulo = {
-      id: Math.random().toString(36).substring(7),
+      id: Crypto.randomUUID(),
       ...entity
     };
     this.fakeDatabase.push(nuevo);

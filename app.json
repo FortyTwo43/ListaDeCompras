@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "scheme": "listadecompras",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#13131A",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true

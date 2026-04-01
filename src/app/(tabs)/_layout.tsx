@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { View, TouchableOpacity } from 'react-native';
 import { Colors } from '../../presentation/constants/theme';
 
 export default function TabLayout() {
@@ -23,6 +24,16 @@ export default function TabLayout() {
           borderBottomWidth: 1,
         },
         headerTintColor: currentTheme.text,
+        headerRight: () => (
+          <View style={{ flexDirection: 'row', marginRight: 16, gap: 16 }}>
+            <TouchableOpacity onPress={() => console.log('Buscar')}>
+              <MaterialCommunityIcons name="magnify" size={24} color={currentTheme.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => console.log('Configuración')}>
+              <MaterialCommunityIcons name="cog-outline" size={24} color={currentTheme.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        ),
       }}>
       <Tabs.Screen
         name="index"
@@ -45,7 +56,7 @@ export default function TabLayout() {
         options={{
           title: 'Medidas',
           tabBarLabel: t('measures'),
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="scale" color={color} size={24} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="scale-balance" color={color} size={24} />,
         }}
       />
     </Tabs>

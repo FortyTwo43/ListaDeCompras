@@ -2,21 +2,25 @@ export const Colors = {
   light: {
     background: '#F5F5F9', // color de fondo claro
     surface: '#FFFFFF', // color de las tarjetas (card)
-    text: '#202020',
-    textSecondary: '#666666',
+    surfaceHighlight: '#e9e9f9ff', // Color destacado de tarjeta en modo claro
+    text: '#202020', // Color principal usar para la mayoria de texto
+    textSecondary: '#4e4c4cff', // Color de texto secundario, usar para textos menos importantes
+    textTerciary: '#EFEFEF', // Color de texto claro, usar cuando se quiere escribir algo sobre un color muy oscuro
     border: '#E0E0E0',
     primary: '#6A6385', // Violeta apagado como el de las capturas para FABs
     primaryLight: '#8A82A5', 
     success: '#00B578', // check verde
     danger: '#FF4D4F', // cross rojo
-    pending: '#808080', // circulo gris
+    pending: '#9d9c9cff', // circulo gris
   },
   dark: {
     background: '#13131A', // Fondo oscuro de las capturas
     surface: '#1C1C24', // Barra inferior y detalles
-    surfaceHighlight: '#A8A6B9', // Gris claro o lavanda para las tarjetas de listas vacias/llenas
-    text: '#EFEFEF',
-    textSecondary: '#A0A0A0',
+    surfaceHighlight: '#646276ff', // Gris azulado para las tarjetas de listas vacias/llenas
+    // #A8A6B9
+    text: '#EFEFEF', // Color principal usar para la mayoria de texto
+    textSecondary: '#A0A0A0', // Color de texto secundario, usar para textos menos importantes
+    textTerciary: '#121212ff', // Color de texto oscuro, usar cuando se quiere escribir algo sobre un color muy claro
     border: '#2A2A35',
     primary: '#474358', // FAB background de la captura
     primaryLight: '#605B77',
