@@ -3,12 +3,10 @@ import { IListaComprasRepository, ListaCompras } from '../../domain';
 export class ListaUseCases {
   constructor(private listaRepository: IListaComprasRepository) {}
 
-  async crearLista(titulo: string, descripcion: string | null, icon: string): Promise<ListaCompras> {
+  async crearLista(data: Omit<ListaCompras, 'id' | 'progreso'>): Promise<ListaCompras> {
     return await this.listaRepository.create({
-      titulo,
-      descripcion,
+      ...data,
       progreso: 0,
-      icon,
     });
   }
 

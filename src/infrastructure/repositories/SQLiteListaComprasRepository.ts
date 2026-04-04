@@ -20,8 +20,8 @@ export class SQLiteListaComprasRepository implements IListaComprasRepository {
     const nuevaLista: ListaCompras = { id, ...entity };
 
     await this.db.runAsync(
-      'INSERT INTO ListaCompras (id, titulo, descripcion, progreso, icon) VALUES (?, ?, ?, ?, ?);',
-      [nuevaLista.id, nuevaLista.titulo, nuevaLista.descripcion || null, nuevaLista.progreso, nuevaLista.icon]
+      'INSERT INTO ListaCompras (id, titulo, descripcion, progreso, icon, color) VALUES (?, ?, ?, ?, ?, ?);',
+      [nuevaLista.id, nuevaLista.titulo, nuevaLista.descripcion || null, nuevaLista.progreso, nuevaLista.icon, nuevaLista.color]
     );
 
     return nuevaLista;
@@ -34,8 +34,8 @@ export class SQLiteListaComprasRepository implements IListaComprasRepository {
     const updated: ListaCompras = { ...current, ...entity };
 
     await this.db.runAsync(
-      'UPDATE ListaCompras SET titulo = ?, descripcion = ?, progreso = ?, icon = ? WHERE id = ?;',
-      [updated.titulo, updated.descripcion || null, updated.progreso, updated.icon, id]
+      'UPDATE ListaCompras SET titulo = ?, descripcion = ?, progreso = ?, icon = ?, color = ? WHERE id = ?;',
+      [updated.titulo, updated.descripcion || null, updated.progreso, updated.icon, updated.color, id]
     );
 
     return updated;

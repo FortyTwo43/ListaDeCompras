@@ -4,4 +4,5 @@ export interface ListaCompras {
   descripcion: string | null;
   progreso: number;
   icon: string;
+  color: string;
 }

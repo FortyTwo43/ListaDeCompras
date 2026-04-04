@@ -6,16 +6,10 @@ export class ListaArticuloUseCases {
     private listaComprasRepository: IListaComprasRepository
   ) {}
 
-  async agregarArticuloALista(id_articulo: string, id_lista: string, id_medida: string, cantidad: number): Promise<ListaArticulo> {
-    const nuevo = await this.listaArticuloRepository.create({
-      estado: 'pendiente',
-      cantidad,
-      id_articulo,
-      id_lista,
-      id_medida,
-    });
+  async agregarArticuloALista(data: Omit<ListaArticulo, 'id'>): Promise<ListaArticulo> {
+    const nuevo = await this.listaArticuloRepository.create(data);
     // Actualizar progreso
-    await this.calcularProgresoLista(id_lista);
+    await this.calcularProgresoLista(data.id_lista);
     return nuevo;
   }
 

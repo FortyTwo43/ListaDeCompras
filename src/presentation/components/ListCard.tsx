@@ -33,8 +33,7 @@ export function ListCard({ lista, onPress, isDark = true }: ListCardProps) {
     >
       {/* Icono Redondo */}
       <View style={[styles.iconContainer, { backgroundColor: theme.primary }]}>
-        <MaterialCommunityIcons name={lista.icon as any || 'basket'} size={24} color={Colors.light.success} /> 
-        {/* Usamos el verde del éxito para contrastar el ícono según la captura */}
+        <MaterialCommunityIcons name={lista.icon as any} size={24} color={lista.color} /> 
       </View>
 
       {/* Textos */}

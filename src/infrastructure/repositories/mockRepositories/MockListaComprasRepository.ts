@@ -14,6 +14,7 @@ export class MockListaComprasRepository implements IListaComprasRepository {
       descripcion: 'Lista de compras para el día domingo en el supermercado',
       progreso: 35,
       icon: 'basket', 
+      color: '#4CAF50',
     },
     {
       id: MOCK_UUID_LISTA_2,
@@ -21,6 +22,7 @@ export class MockListaComprasRepository implements IListaComprasRepository {
       descripcion: 'Comprar sólo verduras frescas',
       progreso: 0,
       icon: 'leaf',
+      color: '#9C27B0',
     }
   ];
 

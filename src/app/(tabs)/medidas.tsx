@@ -47,20 +47,10 @@ export default function MedidasScreen() {
     try {
       if (medidaActual.id) {
         // Modo Edición
-        if ('actualizarMedida' in medidaUseCases) {
-          await (medidaUseCases as any).actualizarMedida(medidaActual.id, { nombre: medidaActual.nombre });
-        } else {
-          const repo = (medidaUseCases as any).medidaRepository;
-          if (repo) await repo.update(medidaActual.id, { nombre: medidaActual.nombre });
-        }
+        await medidaUseCases.actualizarMedida(medidaActual.id, { nombre: medidaActual.nombre });
       } else {
         // Modo Creación
-        if ('crearMedida' in medidaUseCases) {
-          await (medidaUseCases as any).crearMedida({ nombre: medidaActual.nombre });
-        } else {
-          const repo = (medidaUseCases as any).medidaRepository;
-          if (repo) await repo.create({ nombre: medidaActual.nombre });
-        }
+        await medidaUseCases.crearMedida({ nombre: medidaActual.nombre });
       }
       setModalVisible(false);
       cargarMedidas();
@@ -89,12 +79,7 @@ export default function MedidasScreen() {
           style: "destructive", 
           onPress: async () => {
             try {
-              if ('eliminarMedida' in medidaUseCases) {
-                await (medidaUseCases as any).eliminarMedida(medida.id);
-              } else {
-                const repo = (medidaUseCases as any).medidaRepository;
-                if (repo && repo.delete) await repo.delete(medida.id);
-              }
+              await medidaUseCases.eliminarMedida(medida.id);
               cargarMedidas();
             } catch (error) {
               console.error(error);
@@ -114,7 +99,7 @@ export default function MedidasScreen() {
   }
 
   const filteredMedidas = medidas.filter(m => 
-    m.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+    (m.nombre || '').toString().toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
