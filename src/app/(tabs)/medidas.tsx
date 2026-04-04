@@ -40,7 +40,7 @@ export default function MedidasScreen() {
 
   const handleGuardar = async () => {
     if (!medidaActual.nombre.trim()) {
-      Alert.alert("Error", "El nombre de la medida no puede estar vacío");
+      Alert.alert("Error", t('errorTitleRequired'));
       return;
     }
 
@@ -70,12 +70,12 @@ export default function MedidasScreen() {
 
   const handleDelete = (medida: Medida) => {
     Alert.alert(
-      "Eliminar medida",
-      `¿Estás seguro que deseas eliminar la unidad "${medida.nombre}"?`,
+      t('delete'),
+      t('deleteMeasureConfirm', { name: medida.nombre }),
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: t('cancel'), style: "cancel" },
         { 
-          text: "Eliminar", 
+          text: t('delete'), 
           style: "destructive", 
           onPress: async () => {
             try {
@@ -107,11 +107,11 @@ export default function MedidasScreen() {
       <SearchHeader 
         title={t('measures')} 
         onChangeText={setSearchQuery} 
-        placeholder="Buscar medidas..."
+        placeholder={t('measures') + "..."}
       />
 
       {filteredMedidas.length === 0 ? (
-        <EmptyState messageKey="noItems" isDark={isDark} />
+        <EmptyState messageKey="noMeasures" isDark={isDark} />
       ) : (
         <View style={styles.listWrapper}>
           <FlatList
@@ -139,12 +139,12 @@ export default function MedidasScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
             <Text style={[styles.modalTitle, { color: theme.text }]}>
-              {medidaActual.id ? 'Editar Medida' : 'Nueva Medida'}
+              {medidaActual.id ? t('editMeasure') : t('newMeasure')}
             </Text>
             
             <TextInput
               style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-              placeholder="Ej. Kilogramos, Metros..."
+              placeholder={t('placeholderMeasure')}
               placeholderTextColor={theme.textSecondary}
               value={medidaActual.nombre}
               onChangeText={(text) => setMedidaActual({ ...medidaActual, nombre: text })}
@@ -153,10 +153,10 @@ export default function MedidasScreen() {
 
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.actionButton}>
-                <Text style={{ color: theme.textSecondary }}>Cancelar</Text>
+                <Text style={{ color: theme.textSecondary }}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleGuardar} style={[styles.actionButton, { backgroundColor: theme.primary, borderRadius: Radii.sm }]}>
-                <Text style={{ color: Colors.light.surface }}>Guardar</Text>
+                <Text style={{ color: Colors.light.surface }}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
           </View>

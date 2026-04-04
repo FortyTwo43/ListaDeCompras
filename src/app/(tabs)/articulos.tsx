@@ -41,12 +41,12 @@ export default function ArticulosScreen() {
 
   const handleDelete = (articulo: Articulo) => {
     Alert.alert(
-      "Eliminar artículo",
-      `¿Estás seguro que deseas eliminar "${articulo.nombre}" del catálogo?`,
+      t('delete'),
+      t('deleteItemConfirm', { name: articulo.nombre }),
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: t('cancel'), style: "cancel" },
         { 
-          text: "Eliminar", 
+          text: t('delete'), 
           style: "destructive", 
           onPress: async () => {
             try {
@@ -63,7 +63,7 @@ export default function ArticulosScreen() {
 
   const handleGuardar = async () => {
     if (!articuloActual.nombre.trim()) {
-      Alert.alert("Error", "El nombre del artículo no puede estar vacío");
+      Alert.alert("Error", t('errorTitleRequired'));
       return;
     }
 
@@ -106,7 +106,7 @@ export default function ArticulosScreen() {
       <SearchHeader 
         title={t('items')} 
         onChangeText={setSearchQuery} 
-        placeholder="Buscar artículos..."
+        placeholder={t('items') + "..."}
       />
 
       {filteredArticulos.length === 0 ? (
@@ -135,12 +135,12 @@ export default function ArticulosScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
             <Text style={[styles.modalTitle, { color: theme.text }]}>
-              {articuloActual.id ? 'Editar Artículo' : 'Nuevo Artículo'}
+              {articuloActual.id ? t('editItem') : t('newItem')}
             </Text>
             
             <TextInput
               style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-              placeholder="Ej. Arroz, Leche, Pan..."
+              placeholder={t('placeholderItem')}
               placeholderTextColor={theme.textSecondary}
               value={articuloActual.nombre}
               onChangeText={(text) => setArticuloActual({ ...articuloActual, nombre: text })}
@@ -149,10 +149,10 @@ export default function ArticulosScreen() {
 
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.actionButton}>
-                <Text style={{ color: theme.textSecondary }}>Cancelar</Text>
+                <Text style={{ color: theme.textSecondary }}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleGuardar} style={[styles.actionButton, { backgroundColor: theme.primary, borderRadius: Radii.sm }]}>
-                <Text style={{ color: Colors.light.surface }}>Guardar</Text>
+                <Text style={{ color: Colors.light.surface }}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
           </View>

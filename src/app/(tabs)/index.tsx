@@ -22,7 +22,12 @@ export default function ListasScreen() {
 
   // Estados del Modal
   const [modalVisible, setModalVisible] = useState(false);
-  const [nuevaLista, setNuevaLista] = useState({ titulo: '', descripcion: '', icon: ICONS_LIST[0], color: COLORS_LIST[0] });
+  const [nuevaLista, setNuevaLista] = useState<{ id?: string, titulo: string, descripcion: string, icon: string, color: string }>({ 
+    titulo: '', 
+    descripcion: '', 
+    icon: ICONS_LIST[0], 
+    color: COLORS_LIST[0] 
+  });
 
   const { isDark, theme } = useAppTheme();
   const router = useRouter();
@@ -50,35 +55,68 @@ export default function ListasScreen() {
     router.push(`/detalles/${id}` as any);
   };
 
-  const abrirFormulario = () => {
-    setNuevaLista({ titulo: '', descripcion: '', icon: ICONS_LIST[0], color: COLORS_LIST[0] });
+  const abrirFormulario = (lista?: ListaCompras) => {
+    if (lista) {
+      setNuevaLista({ 
+        id: lista.id, 
+        titulo: lista.titulo, 
+        descripcion: lista.descripcion || '', 
+        icon: lista.icon, 
+        color: lista.color 
+      });
+    } else {
+      setNuevaLista({ titulo: '', descripcion: '', icon: ICONS_LIST[0], color: COLORS_LIST[0] });
+    }
     setModalVisible(true);
+  };
+
+  const handleDeleteLista = (lista: ListaCompras) => {
+    Alert.alert(
+      t('delete'),
+      t('deleteListConfirm', { name: lista.titulo }),
+      [
+        { text: t('cancel'), style: 'cancel' },
+        { 
+          text: t('delete'), 
+          style: 'destructive', 
+          onPress: async () => {
+            try {
+              await listaUseCases.eliminarLista(lista.id);
+              cargarListas();
+            } catch (error) {
+              console.error(error);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleGuardar = async () => {
     if (!nuevaLista.titulo.trim()) {
-      Alert.alert("Error", "El título es obligatorio");
+      Alert.alert("Error", t('errorTitleListRequired'));
       return;
     }
 
     if (!nuevaLista.icon || !nuevaLista.color) {
-      Alert.alert("Error", "Debe seleccionar un ícono y un color");
+      Alert.alert("Error", t('errorSelectionRequired'));
       return;
     }
 
     try {
-      if ('crearLista' in listaUseCases) {
-        await (listaUseCases as any).crearLista({ 
-          titulo: nuevaLista.titulo, 
-          descripcion: nuevaLista.descripcion || null, 
-          icon: nuevaLista.icon, 
-          color: nuevaLista.color 
-        });
+      const data = { 
+        titulo: nuevaLista.titulo, 
+        descripcion: nuevaLista.descripcion || null, 
+        icon: nuevaLista.icon, 
+        color: nuevaLista.color 
+      };
+
+      if (nuevaLista.id) {
+        // ACTUALIZAR
+        await listaUseCases.actualizarLista(nuevaLista.id, data);
       } else {
-        const repo = (listaUseCases as any).listaRepository || (listaUseCases as any).repository || (listaUseCases as any).listaComprasRepository;
-        if (repo && repo.create) {
-          await repo.create({ ...nuevaLista, progreso: 0, descripcion: nuevaLista.descripcion || null });
-        }
+        // CREAR
+        await listaUseCases.crearLista(data);
       }
       setModalVisible(false);
       cargarListas();
@@ -104,7 +142,7 @@ export default function ListasScreen() {
       <SearchHeader 
         title={t('lists')} 
         onChangeText={setSearchQuery} 
-        placeholder="Buscar listas..."
+        placeholder={t('lists') + "..."}
       />
 
       {filteredListas.length === 0 ? (
@@ -119,7 +157,9 @@ export default function ListasScreen() {
             <ListCard 
               lista={item} 
               isDark={isDark} 
-              onPress={() => handleCardPress(item.id)} 
+              onPress={() => handleCardPress(item.id)}
+              onEdit={() => abrirFormulario(item)}
+              onDelete={() => handleDeleteLista(item)} 
             />
           )}
         />
@@ -129,11 +169,13 @@ export default function ListasScreen() {
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Nueva Lista</Text>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              {nuevaLista.id ? t('editList') : t('newList')}
+            </Text>
             
             <TextInput
               style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-              placeholder="Título (Ej. Supermercado)"
+              placeholder={t('placeholderList')}
               placeholderTextColor={theme.textSecondary}
               value={nuevaLista.titulo}
               onChangeText={(text) => setNuevaLista({ ...nuevaLista, titulo: text })}
@@ -141,14 +183,14 @@ export default function ListasScreen() {
 
             <TextInput
               style={[styles.input, { color: theme.text, borderColor: theme.border, height: 60 }]}
-              placeholder="Descripción (opcional)"
+              placeholder={t('description') + " (" + t('optional') + ")"}
               placeholderTextColor={theme.textSecondary}
               value={nuevaLista.descripcion}
               onChangeText={(text) => setNuevaLista({ ...nuevaLista, descripcion: text })}
               multiline
             />
 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Icono</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('icon')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.selectorRow}>
               {ICONS_LIST.map((iconNombre) => (
                 <TouchableOpacity
@@ -172,7 +214,7 @@ export default function ListasScreen() {
               ))}
             </ScrollView>
 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Color</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('color')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.selectorRow}>
               {COLORS_LIST.map((hexColor) => (
                 <TouchableOpacity
@@ -192,17 +234,17 @@ export default function ListasScreen() {
 
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.actionButton}>
-                <Text style={{ color: theme.textSecondary }}>Cancelar</Text>
+                <Text style={{ color: theme.textSecondary }}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleGuardar} style={[styles.actionButton, { backgroundColor: theme.primary, borderRadius: Radii.sm }]}>
-                <Text style={{ color: Colors.light.surface }}>Guardar</Text>
+                <Text style={{ color: Colors.light.surface }}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-      <Fab onPress={abrirFormulario} isDark={isDark} />
+      <Fab onPress={() => abrirFormulario()} isDark={isDark} />
     </View>
   );
 }
