@@ -7,12 +7,17 @@ import { Colors } from '../../presentation/constants/theme';
 import { articuloUseCases } from '../../di';
 import { Articulo } from '../../domain/entities/Articulo';
 
+import { useTranslation } from 'react-i18next';
+import { useAppTheme } from '../../presentation/context/ThemeContext';
+import { SearchHeader } from '../../presentation/components/SearchHeader';
+
 export default function ArticulosScreen() {
   const [articulos, setArticulos] = useState<Articulo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const isDark = true;
-  const theme = isDark ? Colors.dark : Colors.light;
+  const { isDark, theme } = useAppTheme();
+  const { t } = useTranslation();
 
   useEffect(() => {
     cargarArticulos();
@@ -69,14 +74,24 @@ export default function ArticulosScreen() {
     );
   }
 
+  const filteredArticulos = articulos.filter(a => 
+    a.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {articulos.length === 0 ? (
+      <SearchHeader 
+        title={t('items')} 
+        onChangeText={setSearchQuery} 
+        placeholder="Buscar artículos..."
+      />
+
+      {filteredArticulos.length === 0 ? (
         <EmptyState messageKey="noItems" isDark={isDark} />
       ) : (
         <View style={styles.listWrapper}>
           <FlatList
-            data={articulos}
+            data={filteredArticulos}
             keyExtractor={item => item.id}
             renderItem={({ item, index }) => (
               <View>

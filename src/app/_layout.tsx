@@ -1,34 +1,47 @@
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Colors } from '../presentation/constants/theme';
+import { ThemeProvider as ContextThemeProvider, useAppTheme } from '../presentation/context/ThemeContext';
 import '../presentation/i18n'; // Activa el sistema de idiomas global
 
-export default function RootLayout() {
+function RootNavigation() {
   const { t } = useTranslation();
-  // TODO: Leer del contexto o AsyncStorage si es dark/light (por defecto Dark en las capturas)
-  const isDark = true;
-  const currentTheme = isDark ? Colors.dark : Colors.light;
+  const { theme } = useAppTheme();
 
   return (
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: currentTheme.surface,
-          },
-          headerTintColor: currentTheme.text,
-          contentStyle: {
-            backgroundColor: currentTheme.background,
-          }
+    <Stack
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.surface,
+        },
+        headerTintColor: theme.text,
+        contentStyle: {
+          backgroundColor: theme.background,
+        }
+      }}
+    >
+      <Stack.Screen name="(tabs)" options={{ headerShown: false  }} />
+      <Stack.Screen
+        name="detalles/[id]"
+        options={{
+          headerShown: false,
+          presentation: 'card'
         }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false  }} />
-        <Stack.Screen
-          name="detalles/[id]"
-          options={{
-            headerShown: false,
-            presentation: 'card'
-          }}
-        />
-      </Stack>
+      />
+      <Stack.Screen
+        name="configuracion"
+        options={{
+          title: t('settings') || 'Configuración',
+          presentation: 'card'
+        }}
+      />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ContextThemeProvider>
+      <RootNavigation />
+    </ContextThemeProvider>
   );
 }

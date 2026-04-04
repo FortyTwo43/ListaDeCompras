@@ -13,6 +13,8 @@ import { ArticuloRow } from '../../presentation/components/ArticuloRow';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
 import { Colors } from '../../presentation/constants/theme';
+import { useAppTheme } from '../../presentation/context/ThemeContext';
+import { SearchHeader } from '../../presentation/components/SearchHeader';
 
 
 // Utilidad local para cruzar datos
@@ -28,9 +30,9 @@ export default function DetallesListaScreen() {
   const [lista, setLista] = useState<ListaCompras | null>(null);
   const [articulos, setArticulos] = useState<ExtendedArticulo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const isDark = true;
-  const theme = isDark ? Colors.dark : Colors.light;
+  const { isDark, theme } = useAppTheme();
 
   useEffect(() => {
     if (id) {
@@ -102,35 +104,21 @@ export default function DetallesListaScreen() {
     );
   }
 
+  const filteredArticulos = articulos.filter(a => 
+    a.nombreArticulo.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* HEADER PERSONALIZADO GIGANTE - CONTROL ABSOLUTO DE ALTURA AQUÍ */}
-      <View style={[
-        styles.customHeader,
-        {
-          backgroundColor: theme.surface,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.border
-        }
-      ]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color={theme.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text, fontSize: 20 }]}>
-          {lista?.titulo || 'Cargando...'}
-        </Text>
-        <View style={styles.headerSpacer} />
-        <View style={styles.headerIconsContainer}>
-          <TouchableOpacity onPress={() => console.log('Buscar')} style={styles.iconButton}>
-            <MaterialCommunityIcons name="magnify" size={24} color={theme.textSecondary} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log('Configuracion')} style={styles.iconButton}>
-            <MaterialCommunityIcons name="cog-outline" size={24} color={theme.textSecondary} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <SearchHeader 
+        title={lista?.titulo || 'Cargando...'} 
+        onChangeText={setSearchQuery} 
+        placeholder="Buscar artículos..."
+        showBack
+        onBackPress={() => router.back()}
+      />
 
       {/* Renderizamos la barra de progreso en la parte superior idéntica al diseño */}
       <View style={[styles.topProgressWrapper]}>
@@ -144,24 +132,26 @@ export default function DetallesListaScreen() {
         </View>
       </View>
 
-      {articulos.length === 0 ? (
-        <EmptyState messageKey="noItems" isDark={isDark} />
-      ) : (
-        <FlatList
-          data={articulos}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ArticuloRow
-              item={item}
-              nombreArticulo={item.nombreArticulo}
-              nombreMedida={item.nombreMedida}
-              isDark={isDark}
-              onToggleEstado={() => handleToggleEstado(item)}
-              onEdit={() => console.log('Editando', item.nombreArticulo)}
-            />
-          )}
-        />
-      )}
+      <View style={styles.content}>
+        {filteredArticulos.length === 0 ? (
+          <EmptyState messageKey="noItems" isDark={isDark} />
+        ) : (
+          <FlatList
+            data={filteredArticulos}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <ArticuloRow
+                item={item}
+                nombreArticulo={item.nombreArticulo}
+                nombreMedida={item.nombreMedida}
+                isDark={isDark}
+                onToggleEstado={() => handleToggleEstado(item)}
+                onEdit={() => console.log('Editando', item.nombreArticulo)}
+              />
+            )}
+          />
+        )}
+      </View>
 
       <Fab onPress={() => { }} isDark={isDark} />
     </View>
@@ -172,30 +162,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  customHeader: {
-    height: 100, // AHORA SÍ: puedes editar este valor hasta encontrar la altura perfecta.
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 36, // Espacio superior para alejarlo de la muesca y barra de batería
-    paddingHorizontal: 8,
-  },
-  backButton: {
-    padding: 12,
-  },
-  headerTitle: {
-    fontSize: 22,
-    marginLeft: 12,
-  },
-  headerSpacer: {
+  content: {
     flex: 1,
   },
-  headerIconsContainer: {
-    flexDirection: 'row',
-    paddingRight: 8,
-    gap: 16,
-  },
-  iconButton: {
-    padding: 4,
+  progressContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   centered: {
     justifyContent: 'center',

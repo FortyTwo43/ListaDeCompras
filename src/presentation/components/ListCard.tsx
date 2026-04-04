@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors, Radii } from '../constants/theme';
 import { ListaCompras } from '../../domain/entities/ListaCompras';
@@ -12,10 +12,22 @@ interface ListCardProps {
 
 export function ListCard({ lista, onPress, isDark = true }: ListCardProps) {
   const theme = isDark ? Colors.dark : Colors.light;
+  const { width } = useWindowDimensions();
+
+  // El FlatList tiene padding 8 por lado (16 total).
+  // La tarjeta tiene margin: 8 por lado (16 total por tarjeta).
+  // width / 2 - (padding del padre + márgenes propios)
+  const exactCardWidth = (width / 2) - 24;
 
   return (
     <TouchableOpacity 
-      style={[styles.card, { backgroundColor: theme.surfaceHighlight }]} 
+      style={[
+        styles.card, 
+        { 
+          backgroundColor: theme.surfaceHighlight,
+          width: exactCardWidth,
+        }
+      ]} 
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -72,7 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: Radii.md,
     padding: 16,
     margin: 8,
-    flex: 1, // Para que tome el tamaño equitativo en grilla
+    // Eliminamos flex: 1 y maxWidth. Ahora React respeta el width inyectado dinámicamente
     minHeight: 220,
     justifyContent: 'space-between',
     elevation: 3,
@@ -114,6 +126,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     lineHeight: 16,
+    height: 48, // Obliga a ocupar exactamente el espacio de 3 líneas (16 * 3)
   },
   progressWrapper: {
     marginTop: 16,

@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
+import { useTranslation } from 'react-i18next';
+import { useAppTheme } from '../../presentation/context/ThemeContext';
+import { SearchHeader } from '../../presentation/components/SearchHeader';
 import { ItemRow } from '../../presentation/components/ItemRow';
 import { Colors, Radii } from '../../presentation/constants/theme';
 import { medidaUseCases } from '../../di';
@@ -14,9 +17,10 @@ export default function MedidasScreen() {
   // Estados del Modal
   const [modalVisible, setModalVisible] = useState(false);
   const [medidaActual, setMedidaActual] = useState<{ id?: string, nombre: string }>({ nombre: '' });
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const isDark = true;
-  const theme = isDark ? Colors.dark : Colors.light;
+  const { isDark, theme } = useAppTheme();
+  const { t } = useTranslation();
 
   useEffect(() => {
     cargarMedidas();
@@ -109,14 +113,24 @@ export default function MedidasScreen() {
     );
   }
 
+  const filteredMedidas = medidas.filter(m => 
+    m.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {medidas.length === 0 ? (
+      <SearchHeader 
+        title={t('measures')} 
+        onChangeText={setSearchQuery} 
+        placeholder="Buscar medidas..."
+      />
+
+      {filteredMedidas.length === 0 ? (
         <EmptyState messageKey="noItems" isDark={isDark} />
       ) : (
         <View style={styles.listWrapper}>
           <FlatList
-            data={medidas}
+            data={filteredMedidas}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
               <ItemRow 

@@ -5,6 +5,9 @@ import { Fab } from '../../presentation/components/Fab';
 import { ListCard } from '../../presentation/components/ListCard';
 import { Colors } from '../../presentation/constants/theme';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { useAppTheme } from '../../presentation/context/ThemeContext';
+import { SearchHeader } from '../../presentation/components/SearchHeader';
 // Importamos la inyección para consumir los mocks que hicimos
 import { listaUseCases } from '../../di';
 import { ListaCompras } from '../../domain/entities/ListaCompras';
@@ -12,10 +15,11 @@ import { ListaCompras } from '../../domain/entities/ListaCompras';
 export default function ListasScreen() {
   const [listas, setListas] = useState<ListaCompras[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const isDark = true; 
-  const theme = isDark ? Colors.dark : Colors.light;
+  const { isDark, theme } = useAppTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   // Cargar datos a través del Patrón Use Case
   useEffect(() => {
@@ -47,13 +51,23 @@ export default function ListasScreen() {
     );
   }
 
+  const filteredListas = listas.filter(l => 
+    l.titulo.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {listas.length === 0 ? (
+      <SearchHeader 
+        title={t('lists')} 
+        onChangeText={setSearchQuery} 
+        placeholder="Buscar listas..."
+      />
+
+      {filteredListas.length === 0 ? (
         <EmptyState messageKey="noLists" isDark={isDark} />
       ) : (
         <FlatList
-          data={listas}
+          data={filteredListas}
           keyExtractor={(item) => item.id}
           numColumns={2} // Grilla de 2 columnas según referencia
           contentContainerStyle={styles.listContainer}

@@ -9,7 +9,12 @@ const resources = {
       "noMeasures": "No measures yet",
       "lists": "Lists",
       "items": "Items",
-      "measures": "Measures"
+      "measures": "Measures",
+      "settings": "Settings",
+      "darkTheme": "Dark Mode",
+      "language": "Language",
+      "english": "English",
+      "spanish": "Spanish"
     }
   },
   es: {
@@ -19,7 +24,12 @@ const resources = {
       "noMeasures": "No hay medidas añadidas",
       "lists": "Listas",
       "items": "Artículos",
-      "measures": "Medidas"
+      "measures": "Medidas",
+      "settings": "Configuración",
+      "darkTheme": "Tema Oscuro",
+      "language": "Idioma",
+      "english": "Inglés",
+      "spanish": "Español"
     }
   }
 };

@@ -12,6 +12,9 @@ interface ItemRowProps {
 
 export function ItemRow({ name, onDelete, onRowPress, isDark = true }: ItemRowProps) {
   const theme = isDark ? Colors.dark : Colors.light;
+  
+  // Defensa contra datos dañados (objetos pasados como nombre)
+  const safeName = typeof name === 'object' ? (name as any)?.nombre || String(name) : name;
 
   return (
     <View style={styles.container}>      
@@ -21,7 +24,7 @@ export function ItemRow({ name, onDelete, onRowPress, isDark = true }: ItemRowPr
         disabled={!onRowPress} 
         activeOpacity={onRowPress ? 0.7 : 1}
       >
-        <Text style={[styles.text, { color: theme.textSecondary }]}>{name}</Text>
+        <Text style={[styles.text, { color: theme.textSecondary }]}>{safeName}</Text>
         <TouchableOpacity onPress={onDelete} activeOpacity={0.7} style={styles.iconButton}>
           <MaterialCommunityIcons name="trash-can-outline" size={20} color={theme.textSecondary} />
         </TouchableOpacity>
