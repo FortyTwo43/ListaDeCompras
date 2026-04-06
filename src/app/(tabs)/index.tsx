@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, Text, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, Text, ScrollView, Alert, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
 import { ListCard } from '../../presentation/components/ListCard';
@@ -28,6 +29,10 @@ export default function ListasScreen() {
     icon: ICONS_LIST[0], 
     color: COLORS_LIST[0] 
   });
+
+  // Estados para el Modal de Confirmación
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [listaAEliminar, setListaAEliminar] = useState<ListaCompras | null>(null);
 
   const { isDark, theme } = useAppTheme();
   const router = useRouter();
@@ -71,25 +76,20 @@ export default function ListasScreen() {
   };
 
   const handleDeleteLista = (lista: ListaCompras) => {
-    Alert.alert(
-      t('delete'),
-      t('deleteListConfirm', { name: lista.titulo }),
-      [
-        { text: t('cancel'), style: 'cancel' },
-        { 
-          text: t('delete'), 
-          style: 'destructive', 
-          onPress: async () => {
-            try {
-              await listaUseCases.eliminarLista(lista.id);
-              cargarListas();
-            } catch (error) {
-              console.error(error);
-            }
-          }
-        }
-      ]
-    );
+    setListaAEliminar(lista);
+    setConfirmModalVisible(true);
+  };
+
+  const confirmarEliminacion = async () => {
+    if (!listaAEliminar) return;
+    try {
+      await listaUseCases.eliminarLista(listaAEliminar.id);
+      setConfirmModalVisible(false);
+      setListaAEliminar(null);
+      cargarListas();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleGuardar = async () => {
@@ -133,9 +133,9 @@ export default function ListasScreen() {
     );
   }
 
-  const filteredListas = listas.filter(l => 
-    (l.titulo || '').toString().toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredListas = listas
+    .filter(l => (l.titulo || '').toString().toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => a.titulo.localeCompare(b.titulo));
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -152,7 +152,7 @@ export default function ListasScreen() {
           data={filteredListas}
           keyExtractor={(item) => item.id}
           numColumns={2} // Grilla de 2 columnas según referencia
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={[styles.listContainer, { paddingBottom: 100 }]}
           renderItem={({ item }) => (
             <ListCard 
               lista={item} 
@@ -167,8 +167,8 @@ export default function ListasScreen() {
 
       {/* MODAL PARA CREAR NUEVA LISTA */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
+        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: theme.surface }]} onPress={(e) => e.stopPropagation()}>
             <Text style={[styles.modalTitle, { color: theme.text }]}>
               {nuevaLista.id ? t('editList') : t('newList')}
             </Text>
@@ -240,9 +240,18 @@ export default function ListasScreen() {
                 <Text style={{ color: Colors.light.surface }}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
+
+      <ConfirmModal
+        visible={confirmModalVisible}
+        title={t('delete')}
+        message={t('deleteListConfirm', { name: listaAEliminar?.titulo || '' })}
+        onConfirm={confirmarEliminacion}
+        onCancel={() => setConfirmModalVisible(false)}
+        isDark={isDark}
+      />
 
       <Fab onPress={() => abrirFormulario()} isDark={isDark} />
     </View>

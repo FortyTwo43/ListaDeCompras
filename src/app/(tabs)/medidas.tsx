@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Pressable } from 'react-native';
+import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,10 @@ export default function MedidasScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [medidaActual, setMedidaActual] = useState<{ id?: string, nombre: string }>({ nombre: '' });
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Estados del Modal de Confirmación
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [medidaAEliminar, setMedidaAEliminar] = useState<Medida | null>(null);
 
   const { isDark, theme } = useAppTheme();
   const { t } = useTranslation();
@@ -69,25 +74,20 @@ export default function MedidasScreen() {
   };
 
   const handleDelete = (medida: Medida) => {
-    Alert.alert(
-      t('delete'),
-      t('deleteMeasureConfirm', { name: medida.nombre }),
-      [
-        { text: t('cancel'), style: "cancel" },
-        { 
-          text: t('delete'), 
-          style: "destructive", 
-          onPress: async () => {
-            try {
-              await medidaUseCases.eliminarMedida(medida.id);
-              cargarMedidas();
-            } catch (error) {
-              console.error(error);
-            }
-          }
-        }
-      ]
-    );
+    setMedidaAEliminar(medida);
+    setConfirmModalVisible(true);
+  };
+
+  const confirmarEliminacion = async () => {
+    if (!medidaAEliminar) return;
+    try {
+      await medidaUseCases.eliminarMedida(medidaAEliminar.id);
+      setConfirmModalVisible(false);
+      setMedidaAEliminar(null);
+      cargarMedidas();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (loading) {
@@ -98,9 +98,9 @@ export default function MedidasScreen() {
     );
   }
 
-  const filteredMedidas = medidas.filter(m => 
-    (m.nombre || '').toString().toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMedidas = medidas
+    .filter(m => (m.nombre || '').toString().toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -125,6 +125,7 @@ export default function MedidasScreen() {
                 isDark={isDark} 
               />
             )}
+            contentContainerStyle={{ paddingBottom: 100 }}
           />
         </View>
       )}
@@ -136,8 +137,8 @@ export default function MedidasScreen() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
+        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: theme.surface }]} onPress={(e) => e.stopPropagation()}>
             <Text style={[styles.modalTitle, { color: theme.text }]}>
               {medidaActual.id ? t('editMeasure') : t('newMeasure')}
             </Text>
@@ -159,9 +160,18 @@ export default function MedidasScreen() {
                 <Text style={{ color: Colors.light.surface }}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
+
+      <ConfirmModal
+        visible={confirmModalVisible}
+        title={t('delete')}
+        message={t('deleteMeasureConfirm', { name: medidaAEliminar?.nombre || '' })}
+        onConfirm={confirmarEliminacion}
+        onCancel={() => setConfirmModalVisible(false)}
+        isDark={isDark}
+      />
 
       <Fab onPress={() => abrirFormulario()} isDark={isDark} />
     </View>
@@ -177,7 +187,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listWrapper: {
-    paddingTop: 0,
+    flex: 1,
   },
   modalOverlay: {
     flex: 1,

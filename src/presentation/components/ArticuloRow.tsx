@@ -62,7 +62,7 @@ export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado
           <MaterialCommunityIcons 
             name="trash-can-outline" 
             size={22} 
-            color="#FF5252" 
+            color={theme.textSecondary} 
           />
         </TouchableOpacity>
       </View>

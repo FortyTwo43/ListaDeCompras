@@ -1,7 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Modal, ScrollView, TextInput as RNTextInput, ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { 
+  Modal, 
+  ScrollView, 
+  TextInput as RNTextInput, 
+  ActivityIndicator, 
+  Alert, 
+  FlatList, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  View,
+  Pressable 
+} from 'react-native';
+import { ConfirmModal } from '../../presentation/components/ConfirmModal';
+import { StatusModal } from '../../presentation/components/StatusModal';
 import {
   articuloUseCases,
   listaArticuloUseCases,
@@ -45,6 +59,11 @@ export default function DetallesListaScreen() {
   const [selectedArticuloForAdding, setSelectedArticuloForAdding] = useState<{ id?: string, nombre: string } | null>(null);
   const [quantity, setQuantity] = useState('1');
   const [selectedMedidaId, setSelectedMedidaId] = useState('');
+
+  // --- Estados para Modales de Acción ---
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
+  const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
+  const [activeItem, setActiveItem] = useState<ExtendedArticulo | null>(null);
 
   const { isDark, theme } = useAppTheme();
 
@@ -90,16 +109,15 @@ export default function DetallesListaScreen() {
   };
 
   const handleToggleEstado = (item: ExtendedArticulo) => {
-    Alert.alert(
-      "Cambiar estado",
-      `¿A qué estado deseas cambiar "${item.nombreArticulo}"?`,
-      [
-        { text: 'Pendiente', onPress: () => actualizarEstado(item.id, 'pendiente') },
-        { text: 'Comprado', onPress: () => actualizarEstado(item.id, 'comprado') },
-        { text: 'Cancelado', onPress: () => actualizarEstado(item.id, 'cancelado'), style: 'destructive' },
-        { text: 'Cancelar', style: 'cancel' }
-      ]
-    );
+    setActiveItem(item);
+    setStatusModalVisible(true);
+  };
+
+  const onSelectNuevoEstado = async (nuevoEstado: EstadoArticulo) => {
+    if (!activeItem) return;
+    await actualizarEstado(activeItem.id, nuevoEstado);
+    setStatusModalVisible(false);
+    setActiveItem(null);
   };
 
   const actualizarEstado = async (idArticuloLista: string, estado: EstadoArticulo) => {
@@ -140,13 +158,13 @@ export default function DetallesListaScreen() {
     }
   };
 
-  const filteredItemsEnLista = articulosEnLista.filter((a: ExtendedArticulo) => 
-    a.nombreArticulo.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCatalog = catalogArticulos
+    .filter((a: Articulo) => a.nombre.toLowerCase().includes(newItemName.toLowerCase()))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
-  const filteredCatalog = catalogArticulos.filter((a: Articulo) => 
-    a.nombre.toLowerCase().includes(newItemName.toLowerCase())
-  );
+  const sortedItemsEnLista = articulosEnLista
+    .filter((a: ExtendedArticulo) => a.nombreArticulo.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => a.nombreArticulo.localeCompare(b.nombreArticulo));
 
   if (loading) {
     return (
@@ -157,26 +175,20 @@ export default function DetallesListaScreen() {
   }
 
   const handleDeleteArticulo = (item: ExtendedArticulo) => {
-    Alert.alert(
-      t('deleteFromList'),
-      t('deleteFromListConfirm', { name: item.nombreArticulo }),
-      [
-        { text: t('cancel'), style: 'cancel' },
-        { 
-          text: t('delete'), 
-          style: 'destructive', 
-          onPress: async () => {
-            if (!id) return;
-            try {
-              await listaArticuloUseCases.eliminarArticuloDeLista(item.id, id);
-              cargarData();
-            } catch (error) {
-              console.error(error);
-            }
-          } 
-        }
-      ]
-    );
+    setActiveItem(item);
+    setConfirmDeleteVisible(true);
+  };
+
+  const confirmarBorradoDeLista = async () => {
+    if (!activeItem || !id) return;
+    try {
+      await listaArticuloUseCases.eliminarArticuloDeLista(activeItem.id, id);
+      setConfirmDeleteVisible(false);
+      setActiveItem(null);
+      cargarData();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -217,7 +229,7 @@ export default function DetallesListaScreen() {
         </View>
       )}
 
-      {!isSelecting && (
+      {!isSelecting && articulosEnLista.length > 0 && (
         <View style={[styles.topProgressWrapper]}>
           <View style={[styles.progressBarBackground, { backgroundColor: theme.primary }]}>
             <View
@@ -235,6 +247,7 @@ export default function DetallesListaScreen() {
           <FlatList
             data={filteredCatalog}
             keyExtractor={(item: Articulo) => item.id}
+            contentContainerStyle={{ paddingBottom: 100 }}
             renderItem={({ item }: { item: Articulo }) => (
               <View style={styles.catalogItemContainer}>
                 <View style={styles.catalogItemRow}>
@@ -248,12 +261,13 @@ export default function DetallesListaScreen() {
             )}
           />
         ) : (
-          filteredItemsEnLista.length === 0 ? (
+          sortedItemsEnLista.length === 0 ? (
             <EmptyState messageKey="noItems" isDark={isDark} />
           ) : (
             <FlatList
-              data={filteredItemsEnLista}
+              data={sortedItemsEnLista}
               keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingBottom: 100 }}
               renderItem={({ item }) => (
                 <ArticuloRow
                   item={item}
@@ -271,8 +285,8 @@ export default function DetallesListaScreen() {
       </View>
 
       <Modal animationType="fade" transparent={true} visible={modalQuantityVisible} onRequestClose={() => setModalQuantityVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
+        <Pressable style={styles.modalOverlay} onPress={() => setModalQuantityVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: theme.surface }]} onPress={(e) => e.stopPropagation()}>
             <Text style={[styles.modalTitle, { color: theme.text }]}>{selectedArticuloForAdding?.nombre}</Text>
             
             <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('quantity')}</Text>
@@ -314,9 +328,28 @@ export default function DetallesListaScreen() {
                 <Text style={{ color: '#FFF' }}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
+
+      {/* MODAL DE CAMBIO DE ESTADO */}
+      <StatusModal
+        visible={statusModalVisible}
+        itemName={activeItem?.nombreArticulo || ''}
+        isDark={isDark}
+        onSelect={onSelectNuevoEstado}
+        onCancel={() => setStatusModalVisible(false)}
+      />
+
+      {/* MODAL DE CONFIRMACIÓN DE BORRADO */}
+      <ConfirmModal
+        visible={confirmDeleteVisible}
+        title={t('deleteFromList')}
+        message={t('deleteFromListConfirm', { name: activeItem?.nombreArticulo || '' })}
+        onConfirm={confirmarBorradoDeLista}
+        onCancel={() => setConfirmDeleteVisible(false)}
+        isDark={isDark}
+      />
 
       {!isSelecting && (
         <Fab onPress={() => setIsSelecting(true)} isDark={isDark} />

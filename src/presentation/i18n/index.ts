@@ -43,7 +43,12 @@ const resources = {
       "measure": "Measure",
       "addToList": "Add to list",
       "deleteFromList": "Remove from list",
-      "deleteFromListConfirm": "Are you sure you want to remove \"{{name}}\" from this list?"
+      "deleteFromListConfirm": "Are you sure you want to remove \"{{name}}\" from this list?",
+      "changeStatus": "Change Status",
+      "chooseStatusFor": "What status do you want for \"{{name}}\"?",
+      "pendiente": "Pending",
+      "comprado": "Bought",
+      "cancelado": "Cancelled"
     }
   },
   es: {
@@ -88,7 +93,12 @@ const resources = {
       "measure": "Medida",
       "addToList": "Añadir a la lista",
       "deleteFromList": "Quitar de la lista",
-      "deleteFromListConfirm": "¿Estás seguro que deseas quitar \"{{name}}\" de esta lista?"
+      "deleteFromListConfirm": "¿Estás seguro que deseas quitar \"{{name}}\" de esta lista?",
+      "changeStatus": "Cambiar Estado",
+      "chooseStatusFor": "¿A qué estado deseas cambiar \"{{name}}\"?",
+      "pendiente": "Pendiente",
+      "comprado": "Comprado",
+      "cancelado": "Cancelado"
     }
   }
 };

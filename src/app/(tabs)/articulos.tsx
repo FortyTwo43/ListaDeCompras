@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Text, Pressable } from 'react-native';
+import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
 import { ItemRow } from '../../presentation/components/ItemRow';
@@ -19,6 +20,10 @@ export default function ArticulosScreen() {
   // Estados del Modal
   const [modalVisible, setModalVisible] = useState(false);
   const [articuloActual, setArticuloActual] = useState<{ id?: string, nombre: string }>({ nombre: '' });
+
+  // Estados del Modal de Confirmación
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [articuloAEliminar, setArticuloAEliminar] = useState<Articulo | null>(null);
 
   const { isDark, theme } = useAppTheme();
   const { t } = useTranslation();
@@ -40,25 +45,20 @@ export default function ArticulosScreen() {
   };
 
   const handleDelete = (articulo: Articulo) => {
-    Alert.alert(
-      t('delete'),
-      t('deleteItemConfirm', { name: articulo.nombre }),
-      [
-        { text: t('cancel'), style: "cancel" },
-        { 
-          text: t('delete'), 
-          style: "destructive", 
-          onPress: async () => {
-            try {
-              await articuloUseCases.eliminarArticulo(articulo.id);
-              cargarArticulos();
-            } catch (error) {
-              console.error(error);
-            }
-          }
-        }
-      ]
-    );
+    setArticuloAEliminar(articulo);
+    setConfirmModalVisible(true);
+  };
+
+  const confirmarEliminacion = async () => {
+    if (!articuloAEliminar) return;
+    try {
+      await articuloUseCases.eliminarArticulo(articuloAEliminar.id);
+      setConfirmModalVisible(false);
+      setArticuloAEliminar(null);
+      cargarArticulos();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleGuardar = async () => {
@@ -97,9 +97,9 @@ export default function ArticulosScreen() {
     );
   }
 
-  const filteredArticulos = articulos.filter(a => 
-    (a.nombre || '').toString().toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredArticulos = articulos
+    .filter(a => (a.nombre || '').toString().toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -116,24 +116,23 @@ export default function ArticulosScreen() {
           <FlatList
             data={filteredArticulos}
             keyExtractor={item => item.id}
-            renderItem={({ item, index }) => (
-              <View>
-                <ItemRow 
-                  name={item.nombre} 
-                  onDelete={() => handleDelete(item)} 
-                  onRowPress={() => abrirFormulario(item)}
-                  isDark={isDark} 
-                />
-              </View>
+            renderItem={({ item }) => (
+              <ItemRow 
+                name={item.nombre} 
+                onDelete={() => handleDelete(item)} 
+                onRowPress={() => abrirFormulario(item)}
+                isDark={isDark} 
+              />
             )}
+            contentContainerStyle={{ paddingBottom: 100 }}
           />
         </View>
       )}
 
       {/* Formulario Modal Para Artículos */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
+        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: theme.surface }]} onPress={(e) => e.stopPropagation()}>
             <Text style={[styles.modalTitle, { color: theme.text }]}>
               {articuloActual.id ? t('editItem') : t('newItem')}
             </Text>
@@ -155,9 +154,18 @@ export default function ArticulosScreen() {
                 <Text style={{ color: Colors.light.surface }}>{t('save')}</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
+
+      <ConfirmModal
+        visible={confirmModalVisible}
+        title={t('delete')}
+        message={t('deleteItemConfirm', { name: articuloAEliminar?.nombre || '' })}
+        onConfirm={confirmarEliminacion}
+        onCancel={() => setConfirmModalVisible(false)}
+        isDark={isDark}
+      />
 
       <Fab onPress={() => abrirFormulario()} isDark={isDark} />
     </View>
@@ -173,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listWrapper: {
-    paddingTop: 0, 
+    flex: 1,
   },
   modalOverlay: {
     flex: 1,
