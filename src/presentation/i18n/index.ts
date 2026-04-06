@@ -37,7 +37,13 @@ const resources = {
       "errorTitleRequired": "Name is required",
       "errorTitleListRequired": "Title is required",
       "errorSelectionRequired": "You must select an icon and a color",
-      "deleteItemConfirm": "Are you sure you want to delete \"{{name}}\" from the catalog?"
+      "deleteItemConfirm": "Are you sure you want to delete \"{{name}}\" from the catalog?",
+      "addItems": "Add items",
+      "quantity": "Quantity",
+      "measure": "Measure",
+      "addToList": "Add to list",
+      "deleteFromList": "Remove from list",
+      "deleteFromListConfirm": "Are you sure you want to remove \"{{name}}\" from this list?"
     }
   },
   es: {
@@ -76,7 +82,13 @@ const resources = {
       "edit": "Editar",
       "deleteListConfirm": "¿Estás seguro que deseas eliminar la lista \"{{name}}\" y todos sus artículos?",
       "deleteMeasureConfirm": "¿Estás seguro que deseas eliminar la unidad \"{{name}}\"?",
-      "deleteItemConfirm": "¿Estás seguro que deseas eliminar \"{{name}}\" del catálogo?"
+      "deleteItemConfirm": "¿Estás seguro que deseas eliminar \"{{name}}\" del catálogo?",
+      "addItems": "Agregar artículos",
+      "quantity": "Cantidad",
+      "measure": "Medida",
+      "addToList": "Añadir a la lista",
+      "deleteFromList": "Quitar de la lista",
+      "deleteFromListConfirm": "¿Estás seguro que deseas quitar \"{{name}}\" de esta lista?"
     }
   }
 };

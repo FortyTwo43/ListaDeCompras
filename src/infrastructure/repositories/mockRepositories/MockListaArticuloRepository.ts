@@ -7,11 +7,30 @@ import { MOCK_UUID_LISTA_1 } from './MockListaComprasRepository';
 import { 
   MOCK_UUID_ART_ZAPATOS, 
   MOCK_UUID_ART_ZANAHORIA, 
-  MOCK_UUID_ART_PAPAS 
+  MOCK_UUID_ART_PAPAS,
+  MOCK_UUID_ART_LECHE,
+  MOCK_UUID_ART_TOMATES,
+  MOCK_UUID_ART_PAN,
+  MOCK_UUID_ART_CARNE,
+  MOCK_UUID_ART_POLLO,
+  MOCK_UUID_ART_GALLETAS,
+  MOCK_UUID_ART_ATUN,
+  MOCK_UUID_ART_YOGURT,
+  MOCK_UUID_ART_ARROZ
 } from './MockArticuloRepository';
 import { 
   MOCK_UUID_MED_UNIDADES, 
-  MOCK_UUID_MED_GRAMOS 
+  MOCK_UUID_MED_GRAMOS,
+  MOCK_UUID_MED_LITROS,
+  MOCK_UUID_MED_KILOS,
+  MOCK_UUID_MED_METROS,
+  MOCK_UUID_MED_CENTIMETROS,
+  MOCK_UUID_MED_MILILITROS,
+  MOCK_UUID_MED_KILOGRAMOS,
+  MOCK_UUID_MED_GALONES,
+  MOCK_UUID_MED_SACOS,
+  MOCK_UUID_MED_PAQUETES,
+  MOCK_UUID_MED_BOLSAS
 } from './MockMedidaRepository';
 
 export class MockListaArticuloRepository implements IListaArticuloRepository {
@@ -39,6 +58,78 @@ export class MockListaArticuloRepository implements IListaArticuloRepository {
       id_articulo: MOCK_UUID_ART_PAPAS, 
       id_lista: MOCK_UUID_LISTA_1,
       id_medida: MOCK_UUID_MED_UNIDADES
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'pendiente',
+      cantidad: 2,
+      id_articulo: MOCK_UUID_ART_LECHE, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_LITROS
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'comprado',
+      cantidad: 1,
+      id_articulo: MOCK_UUID_ART_TOMATES, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_UNIDADES
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'pendiente',
+      cantidad: 1,
+      id_articulo: MOCK_UUID_ART_PAN, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_UNIDADES
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'comprado',
+      cantidad: 500,
+      id_articulo: MOCK_UUID_ART_CARNE, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_GRAMOS
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'pendiente',
+      cantidad: 1,
+      id_articulo: MOCK_UUID_ART_POLLO, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_KILOS
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'comprado',
+      cantidad: 1,
+      id_articulo: MOCK_UUID_ART_GALLETAS, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_PAQUETES
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'pendiente',
+      cantidad: 2,
+      id_articulo: MOCK_UUID_ART_ATUN, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_UNIDADES
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'comprado',
+      cantidad: 4,
+      id_articulo: MOCK_UUID_ART_YOGURT, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_UNIDADES
+    },
+    {
+      id: Crypto.randomUUID(),
+      estado: 'pendiente',
+      cantidad: 1,
+      id_articulo: MOCK_UUID_ART_ARROZ, 
+      id_lista: MOCK_UUID_LISTA_1,
+      id_medida: MOCK_UUID_MED_KILOGRAMOS
     }
   ];
 

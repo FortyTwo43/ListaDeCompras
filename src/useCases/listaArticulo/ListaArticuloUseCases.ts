@@ -38,15 +38,22 @@ export class ListaArticuloUseCases {
 
   async calcularProgresoLista(id_lista: string): Promise<number> {
     const todosEnLista = await this.obtenerArticulosDeLista(id_lista);
-    if (todosEnLista.length === 0) {
+    
+    // Ignorar los artículos cancelados del cálculo
+    const articulosRelevantes = todosEnLista.filter(a => a.estado !== 'cancelado');
+    
+    if (articulosRelevantes.length === 0) {
       await this.listaComprasRepository.update(id_lista, { progreso: 0 });
       return 0;
     }
 
-    const comprados = todosEnLista.filter(a => a.estado === 'comprado').length;
-    const progreso = Math.round((comprados / todosEnLista.length) * 100);
+    const compradosCount = articulosRelevantes.filter(a => a.estado === 'comprado').length;
+    
+    // Calcular el porcentaje basado solo en los relevantes (comprados y pendientes)
+    // Usamos toFixed(2) para que el progreso refleje los decimales que solicitaste (ej. 22.22)
+    const progresoRaw = (compradosCount / articulosRelevantes.length) * 100;
+    const progreso = parseFloat(progresoRaw.toFixed(2));
 
-    // Actualizamos el progreso en la tabla de listas
     await this.listaComprasRepository.update(id_lista, { progreso });
     return progreso;
   }

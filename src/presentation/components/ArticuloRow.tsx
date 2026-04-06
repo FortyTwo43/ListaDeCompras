@@ -10,10 +10,11 @@ interface ArticuloRowProps {
   nombreMedida: string;
   onToggleEstado: () => void;
   onEdit: () => void;
+  onDelete: () => void;
   isDark?: boolean;
 }
 
-export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado, onEdit, isDark = true }: ArticuloRowProps) {
+export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado, onEdit, onDelete, isDark = true }: ArticuloRowProps) {
   const theme = isDark ? Colors.dark : Colors.light;
 
   const getIcon = () => {
@@ -48,9 +49,22 @@ export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado
           </Text>
         </TouchableOpacity>
         
+
         <Text style={[styles.quantity, { color: theme.textSecondary }]}>
           {item.cantidad} {nombreMedida}
         </Text>
+
+        <TouchableOpacity 
+          style={styles.deleteButton} 
+          onPress={onDelete} 
+          activeOpacity={0.7}
+        >
+          <MaterialCommunityIcons 
+            name="trash-can-outline" 
+            size={22} 
+            color="#FF5252" 
+          />
+        </TouchableOpacity>
       </View>
       {/* Línea divisoria inferior */}
       <View style={[styles.separator, { backgroundColor: theme.border }]} />
@@ -87,6 +101,10 @@ const styles = StyleSheet.create({
   },
   quantity: { 
     fontSize: 14, 
-    marginLeft: 8 
+    marginHorizontal: 8 
+  },
+  deleteButton: {
+    padding: 8,
+    marginLeft: 4,
   }
 });
