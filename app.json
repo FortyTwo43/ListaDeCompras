@@ -13,7 +13,8 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.neysser.listadecompras"
     },
     "web": {
       "output": "static"
@@ -25,6 +26,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ba47edb1-6763-4aa0-a6cc-11bc1694ce12"
+      }
     }
   }
 }

@@ -10,11 +10,12 @@ interface ArticuloRowProps {
   nombreMedida: string;
   onToggleEstado: () => void;
   onEdit: () => void;
+  onEditMeasure?: () => void;
   onDelete: () => void;
   isDark?: boolean;
 }
 
-export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado, onEdit, onDelete, isDark = true }: ArticuloRowProps) {
+export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado, onEdit, onEditMeasure, onDelete, isDark = true }: ArticuloRowProps) {
   const theme = isDark ? Colors.dark : Colors.light;
 
   const getIcon = () => {
@@ -50,9 +51,11 @@ export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado
         </TouchableOpacity>
         
 
-        <Text style={[styles.quantity, { color: theme.textSecondary }]}>
-          {item.cantidad} {nombreMedida}
-        </Text>
+        <TouchableOpacity style={styles.quantityContainer} onPress={onEditMeasure} activeOpacity={0.7} disabled={!onEditMeasure}>
+          <Text style={[styles.quantity, { color: theme.textSecondary }]}>
+            {item.cantidad} {nombreMedida}
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.deleteButton} 
@@ -99,9 +102,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500'
   },
+  quantityContainer: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    justifyContent: 'center',
+  },
   quantity: { 
     fontSize: 14, 
-    marginHorizontal: 8 
   },
   deleteButton: {
     padding: 8,
