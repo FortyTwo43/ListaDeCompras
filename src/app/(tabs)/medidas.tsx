@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Pressable, RefreshControl } from 'react-native';
 import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../presentation/context/ThemeContext';
-import { SearchHeader } from '../../presentation/components/SearchHeader';
+import { useNavigation, useFocusEffect } from 'expo-router';
 import { ItemRow } from '../../presentation/components/ItemRow';
 import { Colors, Radii } from '../../presentation/constants/theme';
 import { medidaUseCases } from '../../di';
@@ -14,6 +14,7 @@ import { Medida } from '../../domain/entities/Medida';
 export default function MedidasScreen() {
   const [medidas, setMedidas] = useState<Medida[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Estados del Modal
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,14 +27,22 @@ export default function MedidasScreen() {
 
   const { isDark, theme } = useAppTheme();
   const { t } = useTranslation();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    cargarMedidas();
-  }, []);
+    navigation.setOptions({
+      onSearch: (text: string) => setSearchQuery(text)
+    });
+  }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      cargarMedidas();
+    }, [])
+  );
 
   const cargarMedidas = async () => {
     try {
-      setLoading(true);
       const data = await medidaUseCases.obtenerMedidas();
       setMedidas(data);
     } catch (error) {
@@ -42,6 +51,12 @@ export default function MedidasScreen() {
       setLoading(false);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await cargarMedidas();
+    setRefreshing(false);
+  }, []);
 
   const handleGuardar = async () => {
     if (!medidaActual.nombre.trim()) {
@@ -104,11 +119,6 @@ export default function MedidasScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <SearchHeader 
-        title={t('measures')} 
-        onChangeText={setSearchQuery} 
-        placeholder={t('measures') + "..."}
-      />
 
       {filteredMedidas.length === 0 ? (
         <EmptyState messageKey="noMeasures" isDark={isDark} />
@@ -117,6 +127,14 @@ export default function MedidasScreen() {
           <FlatList
             data={filteredMedidas}
             keyExtractor={item => item.id}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[theme.primary]}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={({ item }) => (
               <ItemRow 
                 name={item.nombre} 

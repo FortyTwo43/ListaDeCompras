@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Pressable } from 'react-native';
 import { Colors } from '../constants/theme';
 import { Medida } from '../../domain';
@@ -7,13 +7,11 @@ import { useTranslation } from 'react-i18next';
 interface QuantityModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (finalQuantity: number, finalMedidaId: string) => void;
   itemName: string;
-  quantity: string;
-  onQuantityChange: (text: string) => void;
+  initialQuantity: string;
+  initialMedidaId?: string;
   medidasCatalog: Medida[];
-  selectedMedidaId: string;
-  onMedidaSelect: (id: string) => void;
   theme: any;
 }
 
@@ -22,14 +20,25 @@ export function QuantityModal({
   onClose,
   onSave,
   itemName,
-  quantity,
-  onQuantityChange,
+  initialQuantity,
+  initialMedidaId,
   medidasCatalog,
-  selectedMedidaId,
-  onMedidaSelect,
   theme
 }: QuantityModalProps) {
   const { t } = useTranslation();
+  const [localQuantity, setLocalQuantity] = useState('1');
+  const [localMedidaId, setLocalMedidaId] = useState('');
+
+  useEffect(() => {
+    if (visible) {
+      setLocalQuantity(initialQuantity || '1');
+      setLocalMedidaId(initialMedidaId || (medidasCatalog.length > 0 ? medidasCatalog[0].id : ''));
+    }
+  }, [visible, initialQuantity, initialMedidaId, medidasCatalog]);
+
+  const handleSave = () => {
+    onSave(parseFloat(localQuantity) || 1, localMedidaId);
+  };
 
   return (
     <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
@@ -42,8 +51,8 @@ export function QuantityModal({
             style={[styles.input, { color: theme.text, borderColor: theme.border }]}
             placeholder="0.0"
             placeholderTextColor={theme.textSecondary}
-            value={quantity}
-            onChangeText={onQuantityChange}
+            value={localQuantity}
+            onChangeText={setLocalQuantity}
             keyboardType="numeric"
           />
 
@@ -52,16 +61,16 @@ export function QuantityModal({
             {medidasCatalog.map((medida: Medida) => (
               <TouchableOpacity
                 key={medida.id}
-                onPress={() => onMedidaSelect(medida.id)}
+                onPress={() => setLocalMedidaId(medida.id)}
                 style={[
                   styles.measureChip,
                   { 
-                    backgroundColor: selectedMedidaId === medida.id ? theme.primary : theme.background,
+                    backgroundColor: localMedidaId === medida.id ? theme.primary : theme.background,
                     borderColor: theme.border,
                   }
                 ]}
               >
-                <Text style={{ color: selectedMedidaId === medida.id ? '#FFF' : theme.text }}>
+                <Text style={{ color: localMedidaId === medida.id ? '#FFF' : theme.text }}>
                   {medida.nombre}
                 </Text>
               </TouchableOpacity>
@@ -72,7 +81,7 @@ export function QuantityModal({
             <TouchableOpacity onPress={onClose} style={styles.actionButton}>
               <Text style={{ color: theme.textSecondary }}>{t('cancel')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={onSave} style={[styles.actionButton, { backgroundColor: theme.primary, borderRadius: 6 }]}>
+            <TouchableOpacity onPress={handleSave} style={[styles.actionButton, { backgroundColor: theme.primary, borderRadius: 6 }]}>
               <Text style={{ color: '#FFF' }}>{t('save')}</Text>
             </TouchableOpacity>
           </View>

@@ -3,6 +3,7 @@ import { Tabs, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View, TouchableOpacity } from 'react-native';
 import { useAppTheme } from '../../presentation/context/ThemeContext';
+import { AppHeader } from '../../presentation/components/AppHeader';
 
 export default function TabLayout() {
   const { t } = useTranslation();
@@ -12,7 +13,13 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true, // ¡ACTIVAMOS LA CABECERA!
+        header: (props) => <AppHeader {...props} />,
+        headerRight: () => (
+          <TouchableOpacity style={{ padding: 8, marginHorizontal: 4 }} onPress={() => router.push('/configuracion' as any)}>
+            <MaterialCommunityIcons name="cog-outline" size={24} color={theme.textSecondary} />
+          </TouchableOpacity>
+        ),
         tabBarActiveTintColor: theme.text,
         tabBarInactiveTintColor: theme.textSecondary,
         tabBarStyle: {

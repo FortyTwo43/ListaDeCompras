@@ -24,9 +24,7 @@ export function useDetallesLista(id: string | undefined) {
   const [newItemName, setNewItemName] = useState('');
 
   const [modalQuantityVisible, setModalQuantityVisible] = useState(false);
-  const [selectedArticuloForAdding, setSelectedArticuloForAdding] = useState<{ id?: string, nombre: string, listaArticuloId?: string } | null>(null);
-  const [quantity, setQuantity] = useState('1');
-  const [selectedMedidaId, setSelectedMedidaId] = useState('');
+  const [selectedArticuloForAdding, setSelectedArticuloForAdding] = useState<{ id?: string, nombre: string, listaArticuloId?: string, initialQuantity?: string, initialMedidaId?: string } | null>(null);
 
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
@@ -46,9 +44,6 @@ export function useDetallesLista(id: string | undefined) {
       if (listaRef) setLista(listaRef);
       setCatalogArticulos(todosLosArticulos);
       setMedidasCatalog(todasLasMedidas);
-      if (todasLasMedidas.length > 0 && !selectedMedidaId) {
-        setSelectedMedidaId(todasLasMedidas[0].id);
-      }
 
       const viewModels: ExtendedArticulo[] = articulosRel.map(item => {
         const art = todosLosArticulos.find(a => a.id === item.id_articulo);
@@ -66,7 +61,7 @@ export function useDetallesLista(id: string | undefined) {
     } finally {
       setLoading(false);
     }
-  }, [id, selectedMedidaId]);
+  }, [id]);
 
   useEffect(() => {
     cargarData();
@@ -97,7 +92,7 @@ export function useDetallesLista(id: string | undefined) {
     }
   };
 
-  const handleConfirmarAgregado = async () => {
+  const handleConfirmarAgregado = async (finalQuantity: number, finalMedidaId: string) => {
     if (!selectedArticuloForAdding || !id) return;
 
     try {
@@ -105,8 +100,8 @@ export function useDetallesLista(id: string | undefined) {
         await listaArticuloUseCases.actualizarArticuloDeLista(
           selectedArticuloForAdding.listaArticuloId,
           {
-            cantidad: parseFloat(quantity) || 0,
-            id_medida: selectedMedidaId
+            cantidad: finalQuantity,
+            id_medida: finalMedidaId
           },
           id
         );
@@ -121,8 +116,8 @@ export function useDetallesLista(id: string | undefined) {
         await listaArticuloUseCases.agregarArticuloALista({
           id_lista: id,
           id_articulo: idArticulo!,
-          id_medida: selectedMedidaId,
-          cantidad: parseFloat(quantity) || 1,
+          id_medida: finalMedidaId,
+          cantidad: finalQuantity,
           estado: 'pendiente'
         });
       }
@@ -151,10 +146,6 @@ export function useDetallesLista(id: string | undefined) {
     setModalQuantityVisible,
     selectedArticuloForAdding,
     setSelectedArticuloForAdding,
-    quantity,
-    setQuantity,
-    selectedMedidaId,
-    setSelectedMedidaId,
     statusModalVisible,
     setStatusModalVisible,
     confirmDeleteVisible,

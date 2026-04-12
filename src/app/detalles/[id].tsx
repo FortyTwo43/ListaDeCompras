@@ -46,10 +46,6 @@ export default function DetallesListaScreen() {
     setModalQuantityVisible,
     selectedArticuloForAdding,
     setSelectedArticuloForAdding,
-    quantity,
-    setQuantity,
-    selectedMedidaId,
-    setSelectedMedidaId,
     statusModalVisible,
     setStatusModalVisible,
     confirmDeleteVisible,
@@ -62,8 +58,10 @@ export default function DetallesListaScreen() {
   } = useDetallesLista(id);
 
   const abrirModalSeleccion = (art: { id?: string, nombre: string }) => {
-    setSelectedArticuloForAdding(art);
-    setQuantity('1');
+    setSelectedArticuloForAdding({
+      ...art,
+      initialQuantity: '1'
+    });
     setModalQuantityVisible(true);
   };
 
@@ -71,10 +69,10 @@ export default function DetallesListaScreen() {
     setSelectedArticuloForAdding({
       id: item.id_articulo,
       nombre: item.nombreArticulo,
-      listaArticuloId: item.id
+      listaArticuloId: item.id,
+      initialQuantity: item.cantidad.toString(),
+      initialMedidaId: item.id_medida
     });
-    setQuantity(item.cantidad.toString());
-    setSelectedMedidaId(item.id_medida);
     setModalQuantityVisible(true);
   };
 
@@ -176,13 +174,11 @@ export default function DetallesListaScreen() {
       <QuantityModal 
         visible={modalQuantityVisible}
         onClose={() => setModalQuantityVisible(false)}
-        onSave={handleConfirmarAgregado}
+        onSave={(q, mid) => handleConfirmarAgregado(q, mid)}
         itemName={selectedArticuloForAdding?.nombre || ''}
-        quantity={quantity}
-        onQuantityChange={setQuantity}
+        initialQuantity={selectedArticuloForAdding?.initialQuantity || '1'}
+        initialMedidaId={selectedArticuloForAdding?.initialMedidaId}
         medidasCatalog={medidasCatalog}
-        selectedMedidaId={selectedMedidaId}
-        onMedidaSelect={setSelectedMedidaId}
         theme={theme}
       />
 

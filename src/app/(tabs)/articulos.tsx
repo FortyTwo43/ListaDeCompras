@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Text, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Text, Pressable, RefreshControl } from 'react-native';
 import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
@@ -10,11 +10,12 @@ import { Articulo } from '../../domain/entities/Articulo';
 
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../presentation/context/ThemeContext';
-import { SearchHeader } from '../../presentation/components/SearchHeader';
+import { useNavigation, useFocusEffect } from 'expo-router';
 
 export default function ArticulosScreen() {
   const [articulos, setArticulos] = useState<Articulo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Estados del Modal
@@ -27,14 +28,22 @@ export default function ArticulosScreen() {
 
   const { isDark, theme } = useAppTheme();
   const { t } = useTranslation();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    cargarArticulos();
-  }, []);
+    navigation.setOptions({
+      onSearch: (text: string) => setSearchQuery(text)
+    });
+  }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      cargarArticulos();
+    }, [])
+  );
 
   const cargarArticulos = async () => {
     try {
-      setLoading(true);
       const data = await articuloUseCases.obtenerTodosLosArticulos();
       setArticulos(data);
     } catch (error) {
@@ -43,6 +52,12 @@ export default function ArticulosScreen() {
       setLoading(false);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await cargarArticulos();
+    setRefreshing(false);
+  }, []);
 
   const handleDelete = (articulo: Articulo) => {
     setArticuloAEliminar(articulo);
@@ -103,11 +118,6 @@ export default function ArticulosScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <SearchHeader 
-        title={t('items')} 
-        onChangeText={setSearchQuery} 
-        placeholder={t('items') + "..."}
-      />
 
       {filteredArticulos.length === 0 ? (
         <EmptyState messageKey="noItems" isDark={isDark} />
@@ -116,6 +126,14 @@ export default function ArticulosScreen() {
           <FlatList
             data={filteredArticulos}
             keyExtractor={item => item.id}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[theme.primary]}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={({ item }) => (
               <ItemRow 
                 name={item.nombre} 
