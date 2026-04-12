@@ -6,7 +6,7 @@ import { Fab } from '../../presentation/components/Fab';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../presentation/context/ThemeContext';
 import { useNavigation, useFocusEffect } from 'expo-router';
-import { ItemRow } from '../../presentation/components/ItemRow';
+import { CatalogList } from '../../presentation/components/CatalogList';
 import { Colors, Radii } from '../../presentation/constants/theme';
 import { medidaUseCases } from '../../di';
 import { Medida } from '../../domain/entities/Medida';
@@ -124,26 +124,14 @@ export default function MedidasScreen() {
         <EmptyState messageKey="noMeasures" isDark={isDark} />
       ) : (
         <View style={styles.listWrapper}>
-          <FlatList
+          <CatalogList
             data={filteredMedidas}
-            keyExtractor={item => item.id}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={[theme.primary]}
-                tintColor={theme.primary}
-              />
-            }
-            renderItem={({ item }) => (
-              <ItemRow 
-                name={item.nombre} 
-                onDelete={() => handleDelete(item)} 
-                onRowPress={() => abrirFormulario(item)}
-                isDark={isDark} 
-              />
-            )}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            onDelete={handleDelete}
+            onRowPress={abrirFormulario}
+            isDark={isDark}
+            theme={theme}
           />
         </View>
       )}

@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput,
 import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
-import { ItemRow } from '../../presentation/components/ItemRow';
+import { CatalogList } from '../../presentation/components/CatalogList';
 import { Colors, Radii } from '../../presentation/constants/theme';
 import { articuloUseCases } from '../../di';
 import { Articulo } from '../../domain/entities/Articulo';
@@ -123,26 +123,14 @@ export default function ArticulosScreen() {
         <EmptyState messageKey="noItems" isDark={isDark} />
       ) : (
         <View style={styles.listWrapper}>
-          <FlatList
+          <CatalogList
             data={filteredArticulos}
-            keyExtractor={item => item.id}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={[theme.primary]}
-                tintColor={theme.primary}
-              />
-            }
-            renderItem={({ item }) => (
-              <ItemRow 
-                name={item.nombre} 
-                onDelete={() => handleDelete(item)} 
-                onRowPress={() => abrirFormulario(item)}
-                isDark={isDark} 
-              />
-            )}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            onDelete={handleDelete}
+            onRowPress={abrirFormulario}
+            isDark={isDark}
+            theme={theme}
           />
         </View>
       )}
