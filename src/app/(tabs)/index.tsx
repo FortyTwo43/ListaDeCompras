@@ -159,7 +159,7 @@ export default function ListasScreen() {
         data={filteredListas}
         keyExtractor={(item) => item.id}
         numColumns={2}
-        contentContainerStyle={[styles.listContainer, { paddingBottom: 100 }]}
+        contentContainerStyle={[styles.listContainer, { paddingBottom: 100, flexGrow: 1 }]}
         ListEmptyComponent={<EmptyState messageKey="noLists" isDark={isDark} />}
         refreshControl={
           <RefreshControl

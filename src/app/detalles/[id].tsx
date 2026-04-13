@@ -133,7 +133,8 @@ export default function DetallesListaScreen() {
           <FlatList
             data={filteredCatalog}
             keyExtractor={(item: Articulo) => item.id}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
+            ListEmptyComponent={<EmptyState messageKey="noItems" isDark={isDark} />}
             renderItem={({ item }: { item: Articulo }) => (
               <View style={styles.catalogItemContainer}>
                 <View style={styles.catalogItemRow}>
@@ -147,27 +148,24 @@ export default function DetallesListaScreen() {
             )}
           />
         ) : (
-          sortedItemsEnLista.length === 0 ? (
-            <EmptyState messageKey="noItems" isDark={isDark} />
-          ) : (
-            <FlatList
-              data={sortedItemsEnLista}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={{ paddingBottom: 100 }}
-              renderItem={({ item }) => (
-                <ArticuloRow
-                  item={item}
-                  nombreArticulo={item.nombreArticulo}
-                  nombreMedida={item.nombreMedida}
-                  isDark={isDark}
-                  onToggleEstado={() => handleToggleEstado(item)}
-                  onEdit={() => console.log('Editando', item.nombreArticulo)}
-                  onEditMeasure={() => abrirModalEdicionCantidad(item)}
-                  onDelete={() => onDeleteClick(item)}
-                />
-              )}
-            />
-          )
+          <FlatList
+            data={sortedItemsEnLista}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
+            ListEmptyComponent={<EmptyState messageKey="noItems" isDark={isDark} />}
+            renderItem={({ item }) => (
+              <ArticuloRow
+                item={item}
+                nombreArticulo={item.nombreArticulo}
+                nombreMedida={item.nombreMedida}
+                isDark={isDark}
+                onToggleEstado={() => handleToggleEstado(item)}
+                onEdit={() => console.log('Editando', item.nombreArticulo)}
+                onEditMeasure={() => abrirModalEdicionCantidad(item)}
+                onDelete={() => onDeleteClick(item)}
+              />
+            )}
+          />
         )}
       </View>
 

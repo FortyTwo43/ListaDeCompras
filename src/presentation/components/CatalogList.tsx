@@ -50,7 +50,7 @@ export function CatalogList<T extends CatalogItem>({
           isDark={isDark} 
         />
       )}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
     />
   );
 }
