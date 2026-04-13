@@ -51,6 +51,8 @@ const resources = {
       "pendiente": "Pending",
       "comprado": "Bought",
       "cancelado": "Cancelled",
+      "dbErrorTitle": "Configuration Error",
+      "dbErrorMessage": "There was a problem configuring your data. Please restart the application.",
       "search": "Search..."
     }
   },
@@ -104,6 +106,8 @@ const resources = {
       "pendiente": "Pendiente",
       "comprado": "Comprado",
       "cancelado": "Cancelado",
+      "dbErrorTitle": "Error de Configuración",
+      "dbErrorMessage": "Hubo un problema al configurar tus datos. Por favor, reinicia la aplicación.",
       "search": "Buscar..."
     }
   }

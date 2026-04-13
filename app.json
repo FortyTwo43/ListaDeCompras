@@ -7,6 +7,12 @@
     "scheme": "listadecompras",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#13131A",
+    "icon": "./assets/images/logo.png",
+    "splash": {
+      "image": "./assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#13131A"
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true

@@ -1,7 +1,8 @@
-import { MockListaComprasRepository } from '../infrastructure/repositories/mockRepositories/MockListaComprasRepository';
-import { MockArticuloRepository } from '../infrastructure/repositories/mockRepositories/MockArticuloRepository';
-import { MockMedidaRepository } from '../infrastructure/repositories/mockRepositories/MockMedidaRepository';
-import { MockListaArticuloRepository } from '../infrastructure/repositories/mockRepositories/MockListaArticuloRepository';
+import { db } from '../infrastructure/database/sqliteConfig';
+import { SQLiteListaComprasRepository } from '../infrastructure/repositories/SQLiteListaComprasRepository';
+import { SQLiteArticuloRepository } from '../infrastructure/repositories/SQLiteArticuloRepository';
+import { SQLiteMedidaRepository } from '../infrastructure/repositories/SQLiteMedidaRepository';
+import { SQLiteListaArticuloRepository } from '../infrastructure/repositories/SQLiteListaArticuloRepository';
 
 import { 
   ListaUseCases, 
@@ -10,11 +11,11 @@ import {
   MedidaUseCases 
 } from '../useCases';
 
-// 1. Instanciamos los Repositorios (Aquí es donde decidimos si usar SQLite o Mocks)
-const listaComprasRepo = new MockListaComprasRepository();
-const articuloRepo = new MockArticuloRepository();
-const medidaRepo = new MockMedidaRepository();
-const listaArticuloRepo = new MockListaArticuloRepository();
+// 1. Instanciamos los Repositorios de SQLite usando la DB configurada
+const listaComprasRepo = new SQLiteListaComprasRepository(db);
+const articuloRepo = new SQLiteArticuloRepository(db);
+const medidaRepo = new SQLiteMedidaRepository(db);
+const listaArticuloRepo = new SQLiteListaArticuloRepository(db);
 
 // 2. Instanciamos los Casos de Uso pasándoles los repositorios
 export const listaUseCases = new ListaUseCases(listaComprasRepo);
