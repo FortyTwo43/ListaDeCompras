@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Pressable, RefreshControl } from 'react-native';
 import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../presentation/context/ThemeContext';
-import { SearchHeader } from '../../presentation/components/SearchHeader';
-import { ItemRow } from '../../presentation/components/ItemRow';
+import { useNavigation, useFocusEffect } from 'expo-router';
+import { CatalogList } from '../../presentation/components/CatalogList';
 import { Colors, Radii } from '../../presentation/constants/theme';
 import { medidaUseCases } from '../../di';
 import { Medida } from '../../domain/entities/Medida';
@@ -14,6 +14,7 @@ import { Medida } from '../../domain/entities/Medida';
 export default function MedidasScreen() {
   const [medidas, setMedidas] = useState<Medida[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Estados del Modal
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,14 +27,22 @@ export default function MedidasScreen() {
 
   const { isDark, theme } = useAppTheme();
   const { t } = useTranslation();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    cargarMedidas();
-  }, []);
+    navigation.setOptions({
+      onSearch: (text: string) => setSearchQuery(text)
+    });
+  }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      cargarMedidas();
+    }, [])
+  );
 
   const cargarMedidas = async () => {
     try {
-      setLoading(true);
       const data = await medidaUseCases.obtenerMedidas();
       setMedidas(data);
     } catch (error) {
@@ -43,8 +52,15 @@ export default function MedidasScreen() {
     }
   };
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await cargarMedidas();
+    setRefreshing(false);
+  }, []);
+
   const handleGuardar = async () => {
-    if (!medidaActual.nombre.trim()) {
+    const trimmedName = medidaActual.nombre.trim();
+    if (!trimmedName) {
       Alert.alert("Error", t('errorTitleRequired'));
       return;
     }
@@ -52,10 +68,10 @@ export default function MedidasScreen() {
     try {
       if (medidaActual.id) {
         // Modo Edición
-        await medidaUseCases.actualizarMedida(medidaActual.id, { nombre: medidaActual.nombre });
+        await medidaUseCases.actualizarMedida(medidaActual.id, { nombre: trimmedName });
       } else {
         // Modo Creación
-        await medidaUseCases.crearMedida({ nombre: medidaActual.nombre });
+        await medidaUseCases.crearMedida({ nombre: trimmedName });
       }
       setModalVisible(false);
       cargarMedidas();
@@ -104,31 +120,19 @@ export default function MedidasScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <SearchHeader 
-        title={t('measures')} 
-        onChangeText={setSearchQuery} 
-        placeholder={t('measures') + "..."}
-      />
 
-      {filteredMedidas.length === 0 ? (
-        <EmptyState messageKey="noMeasures" isDark={isDark} />
-      ) : (
-        <View style={styles.listWrapper}>
-          <FlatList
-            data={filteredMedidas}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-              <ItemRow 
-                name={item.nombre} 
-                onDelete={() => handleDelete(item)} 
-                onRowPress={() => abrirFormulario(item)}
-                isDark={isDark} 
-              />
-            )}
-            contentContainerStyle={{ paddingBottom: 100 }}
-          />
-        </View>
-      )}
+      <View style={styles.listWrapper}>
+        <CatalogList
+          data={filteredMedidas}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          onDelete={handleDelete}
+          onRowPress={abrirFormulario}
+          isDark={isDark}
+          theme={theme}
+          ListEmptyComponent={<EmptyState messageKey="noMeasures" isDark={isDark} />}
+        />
+      </View>
 
       {/* Formulario Emergente (Modal nativo simple y bonito alineado a la estética) */}
       <Modal

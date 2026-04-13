@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Text, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, Text, Pressable, RefreshControl } from 'react-native';
 import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
 import { Fab } from '../../presentation/components/Fab';
-import { ItemRow } from '../../presentation/components/ItemRow';
+import { CatalogList } from '../../presentation/components/CatalogList';
 import { Colors, Radii } from '../../presentation/constants/theme';
 import { articuloUseCases } from '../../di';
 import { Articulo } from '../../domain/entities/Articulo';
 
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../presentation/context/ThemeContext';
-import { SearchHeader } from '../../presentation/components/SearchHeader';
+import { useNavigation, useFocusEffect } from 'expo-router';
 
 export default function ArticulosScreen() {
   const [articulos, setArticulos] = useState<Articulo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Estados del Modal
@@ -27,14 +28,22 @@ export default function ArticulosScreen() {
 
   const { isDark, theme } = useAppTheme();
   const { t } = useTranslation();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    cargarArticulos();
-  }, []);
+    navigation.setOptions({
+      onSearch: (text: string) => setSearchQuery(text)
+    });
+  }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      cargarArticulos();
+    }, [])
+  );
 
   const cargarArticulos = async () => {
     try {
-      setLoading(true);
       const data = await articuloUseCases.obtenerTodosLosArticulos();
       setArticulos(data);
     } catch (error) {
@@ -43,6 +52,12 @@ export default function ArticulosScreen() {
       setLoading(false);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await cargarArticulos();
+    setRefreshing(false);
+  }, []);
 
   const handleDelete = (articulo: Articulo) => {
     setArticuloAEliminar(articulo);
@@ -62,16 +77,17 @@ export default function ArticulosScreen() {
   };
 
   const handleGuardar = async () => {
-    if (!articuloActual.nombre.trim()) {
+    const trimmedName = articuloActual.nombre.trim();
+    if (!trimmedName) {
       Alert.alert("Error", t('errorTitleRequired'));
       return;
     }
 
     try {
       if (articuloActual.id) {
-        await articuloUseCases.actualizarArticulo(articuloActual.id, { nombre: articuloActual.nombre });
+        await articuloUseCases.actualizarArticulo(articuloActual.id, { nombre: trimmedName });
       } else {
-        await articuloUseCases.crearArticulo({ nombre: articuloActual.nombre });
+        await articuloUseCases.crearArticulo({ nombre: trimmedName });
       }
       setModalVisible(false);
       cargarArticulos();
@@ -103,31 +119,19 @@ export default function ArticulosScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <SearchHeader 
-        title={t('items')} 
-        onChangeText={setSearchQuery} 
-        placeholder={t('items') + "..."}
-      />
 
-      {filteredArticulos.length === 0 ? (
-        <EmptyState messageKey="noItems" isDark={isDark} />
-      ) : (
-        <View style={styles.listWrapper}>
-          <FlatList
-            data={filteredArticulos}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-              <ItemRow 
-                name={item.nombre} 
-                onDelete={() => handleDelete(item)} 
-                onRowPress={() => abrirFormulario(item)}
-                isDark={isDark} 
-              />
-            )}
-            contentContainerStyle={{ paddingBottom: 100 }}
-          />
-        </View>
-      )}
+      <View style={styles.listWrapper}>
+        <CatalogList
+          data={filteredArticulos}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          onDelete={handleDelete}
+          onRowPress={abrirFormulario}
+          isDark={isDark}
+          theme={theme}
+          ListEmptyComponent={<EmptyState messageKey="noItems" isDark={isDark} />}
+        />
+      </View>
 
       {/* Formulario Modal Para Artículos */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>

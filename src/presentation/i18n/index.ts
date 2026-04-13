@@ -37,6 +37,8 @@ const resources = {
       "errorTitleRequired": "Name is required",
       "errorTitleListRequired": "Title is required",
       "errorSelectionRequired": "You must select an icon and a color",
+      "errorQuantityRequired": "Quantity must be greater than 0",
+      "errorMeasureRequired": "You must select a unit of measure",
       "deleteItemConfirm": "Are you sure you want to delete \"{{name}}\" from the catalog?",
       "addItems": "Add items",
       "quantity": "Quantity",
@@ -48,7 +50,8 @@ const resources = {
       "chooseStatusFor": "What status do you want for \"{{name}}\"?",
       "pendiente": "Pending",
       "comprado": "Bought",
-      "cancelado": "Cancelled"
+      "cancelado": "Cancelled",
+      "search": "Search..."
     }
   },
   es: {
@@ -83,6 +86,8 @@ const resources = {
       "errorTitleRequired": "El nombre es obligatorio",
       "errorTitleListRequired": "El título es obligatorio",
       "errorSelectionRequired": "Debe seleccionar un ícono y un color",
+      "errorQuantityRequired": "La cantidad debe ser mayor a 0",
+      "errorMeasureRequired": "Debe seleccionar una unidad de medida",
       "delete": "Eliminar",
       "edit": "Editar",
       "deleteListConfirm": "¿Estás seguro que deseas eliminar la lista \"{{name}}\" y todos sus artículos?",
@@ -98,7 +103,8 @@ const resources = {
       "chooseStatusFor": "¿A qué estado deseas cambiar \"{{name}}\"?",
       "pendiente": "Pendiente",
       "comprado": "Comprado",
-      "cancelado": "Cancelado"
+      "cancelado": "Cancelado",
+      "search": "Buscar..."
     }
   }
 };

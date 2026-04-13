@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, Text, ScrollView, Alert, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, StyleSheet, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, Text, ScrollView, Alert, Pressable, RefreshControl } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ConfirmModal } from '../../presentation/components/ConfirmModal';
 import { EmptyState } from '../../presentation/components/EmptyState';
@@ -8,10 +8,9 @@ import { ListCard } from '../../presentation/components/ListCard';
 import { Colors, Radii } from '../../presentation/constants/theme';
 import { ICONS_LIST } from '../../presentation/constants/Icons';
 import { COLORS_LIST } from '../../presentation/constants/ColorsList';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../presentation/context/ThemeContext';
-import { SearchHeader } from '../../presentation/components/SearchHeader';
 // Importamos la inyección para consumir los mocks que hicimos
 import { listaUseCases } from '../../di';
 import { ListaCompras } from '../../domain/entities/ListaCompras';
@@ -19,6 +18,7 @@ import { ListaCompras } from '../../domain/entities/ListaCompras';
 export default function ListasScreen() {
   const [listas, setListas] = useState<ListaCompras[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Estados del Modal
@@ -36,16 +36,25 @@ export default function ListasScreen() {
 
   const { isDark, theme } = useAppTheme();
   const router = useRouter();
+  const navigation = useNavigation();
   const { t } = useTranslation();
 
-  // Cargar datos a través del Patrón Use Case
+  // Acoplar la función de búsqueda a la Cabecera Nativa
   useEffect(() => {
-    cargarListas();
-  }, []);
+    navigation.setOptions({
+      onSearch: (text: string) => setSearchQuery(text)
+    });
+  }, [navigation]);
+
+  // Actualizar listas cuando la pantalla recibe el foco (al regresar atrás de detalles)
+  useFocusEffect(
+    useCallback(() => {
+      cargarListas();
+    }, [])
+  );
 
   const cargarListas = async () => {
     try {
-      setLoading(true);
       const data = await listaUseCases.obtenerListas();
       setListas(data);
     } catch (error) {
@@ -54,6 +63,12 @@ export default function ListasScreen() {
       setLoading(false);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await cargarListas();
+    setRefreshing(false);
+  }, []);
 
   const handleCardPress = (id: string) => {
     // Redireccion al detalle
@@ -139,31 +154,31 @@ export default function ListasScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <SearchHeader 
-        title={t('lists')} 
-        onChangeText={setSearchQuery} 
-        placeholder={t('lists') + "..."}
-      />
 
-      {filteredListas.length === 0 ? (
-        <EmptyState messageKey="noLists" isDark={isDark} />
-      ) : (
-        <FlatList
-          data={filteredListas}
-          keyExtractor={(item) => item.id}
-          numColumns={2} // Grilla de 2 columnas según referencia
-          contentContainerStyle={[styles.listContainer, { paddingBottom: 100 }]}
-          renderItem={({ item }) => (
-            <ListCard 
-              lista={item} 
-              isDark={isDark} 
-              onPress={() => handleCardPress(item.id)}
-              onEdit={() => abrirFormulario(item)}
-              onDelete={() => handleDeleteLista(item)} 
-            />
-          )}
-        />
-      )}
+      <FlatList
+        data={filteredListas}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        contentContainerStyle={[styles.listContainer, { paddingBottom: 100, flexGrow: 1 }]}
+        ListEmptyComponent={<EmptyState messageKey="noLists" isDark={isDark} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[theme.primary]}
+            tintColor={theme.primary}
+          />
+        }
+        renderItem={({ item }) => (
+          <ListCard 
+            lista={item} 
+            isDark={isDark} 
+            onPress={() => handleCardPress(item.id)}
+            onEdit={() => abrirFormulario(item)}
+            onDelete={() => handleDeleteLista(item)} 
+          />
+        )}
+      />
 
       {/* MODAL PARA CREAR NUEVA LISTA */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
