@@ -40,15 +40,12 @@ export function initDatabase() {
     );
   `);
 
-  // Insertar medidas por defecto si la base de datos es nueva
-  const result = db.getFirstSync<{ count: number }>('SELECT COUNT(*) as count FROM Medida;');
-  if (result && result.count === 0) {
-    db.execSync(`
-      INSERT INTO Medida (id, nombre) VALUES 
-        ('283e9324-ed48-4637-9fa5-566441ccb524', 'Unidad(es)'),
-        ('63faef11-4536-468d-ae13-134279cd82a5', 'Kilogramos'),
-        ('242e55b3-1e04-46a8-a502-310fb68debc8', 'Litros'),
-        ('ad4ee63d-dad9-4c25-b302-4ff2fd07466c', 'Paquetes');
-    `);
-  }
+  // Insertar medidas por defecto (idempotente: no falla si ya existen)
+  db.execSync(`
+    INSERT OR IGNORE INTO Medida (id, nombre) VALUES 
+      ('283e9324-ed48-4637-9fa5-566441ccb524', 'Unidad(es)'),
+      ('63faef11-4536-468d-ae13-134279cd82a5', 'Kilogramos'),
+      ('242e55b3-1e04-46a8-a502-310fb68debc8', 'Litros'),
+      ('ad4ee63d-dad9-4c25-b302-4ff2fd07466c', 'Paquetes');
+  `);
 }
