@@ -119,21 +119,18 @@ export default function ArticulosScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      {filteredArticulos.length === 0 ? (
-        <EmptyState messageKey="noItems" isDark={isDark} />
-      ) : (
-        <View style={styles.listWrapper}>
-          <CatalogList
-            data={filteredArticulos}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            onDelete={handleDelete}
-            onRowPress={abrirFormulario}
-            isDark={isDark}
-            theme={theme}
-          />
-        </View>
-      )}
+      <View style={styles.listWrapper}>
+        <CatalogList
+          data={filteredArticulos}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          onDelete={handleDelete}
+          onRowPress={abrirFormulario}
+          isDark={isDark}
+          theme={theme}
+          ListEmptyComponent={<EmptyState messageKey="noItems" isDark={isDark} />}
+        />
+      </View>
 
       {/* Formulario Modal Para Artículos */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>

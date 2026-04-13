@@ -16,6 +16,7 @@ interface CatalogListProps<T extends CatalogItem> {
   onRowPress: (item: T) => void;
   isDark: boolean;
   theme: any;
+  ListEmptyComponent?: React.ComponentType<any> | React.ReactElement | null;
 }
 
 export function CatalogList<T extends CatalogItem>({
@@ -25,12 +26,14 @@ export function CatalogList<T extends CatalogItem>({
   onDelete,
   onRowPress,
   isDark,
-  theme
+  theme,
+  ListEmptyComponent
 }: CatalogListProps<T>) {
   return (
     <FlatList
       data={data}
       keyExtractor={item => item.id}
+      ListEmptyComponent={ListEmptyComponent}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}

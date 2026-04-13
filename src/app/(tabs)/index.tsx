@@ -155,33 +155,30 @@ export default function ListasScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      {filteredListas.length === 0 ? (
-        <EmptyState messageKey="noLists" isDark={isDark} />
-      ) : (
-        <FlatList
-          data={filteredListas}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={[styles.listContainer, { paddingBottom: 100 }]}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[theme.primary]} // Loading icon color on android
-              tintColor={theme.primary} // Loading icon color on iOS
-            />
-          }
-          renderItem={({ item }) => (
-            <ListCard 
-              lista={item} 
-              isDark={isDark} 
-              onPress={() => handleCardPress(item.id)}
-              onEdit={() => abrirFormulario(item)}
-              onDelete={() => handleDeleteLista(item)} 
-            />
-          )}
-        />
-      )}
+      <FlatList
+        data={filteredListas}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        contentContainerStyle={[styles.listContainer, { paddingBottom: 100 }]}
+        ListEmptyComponent={<EmptyState messageKey="noLists" isDark={isDark} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[theme.primary]}
+            tintColor={theme.primary}
+          />
+        }
+        renderItem={({ item }) => (
+          <ListCard 
+            lista={item} 
+            isDark={isDark} 
+            onPress={() => handleCardPress(item.id)}
+            onEdit={() => abrirFormulario(item)}
+            onDelete={() => handleDeleteLista(item)} 
+          />
+        )}
+      />
 
       {/* MODAL PARA CREAR NUEVA LISTA */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>

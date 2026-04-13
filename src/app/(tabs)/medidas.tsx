@@ -120,21 +120,18 @@ export default function MedidasScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      {filteredMedidas.length === 0 ? (
-        <EmptyState messageKey="noMeasures" isDark={isDark} />
-      ) : (
-        <View style={styles.listWrapper}>
-          <CatalogList
-            data={filteredMedidas}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            onDelete={handleDelete}
-            onRowPress={abrirFormulario}
-            isDark={isDark}
-            theme={theme}
-          />
-        </View>
-      )}
+      <View style={styles.listWrapper}>
+        <CatalogList
+          data={filteredMedidas}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          onDelete={handleDelete}
+          onRowPress={abrirFormulario}
+          isDark={isDark}
+          theme={theme}
+          ListEmptyComponent={<EmptyState messageKey="noMeasures" isDark={isDark} />}
+        />
+      </View>
 
       {/* Formulario Emergente (Modal nativo simple y bonito alineado a la estética) */}
       <Modal
