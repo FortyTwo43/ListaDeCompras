@@ -31,9 +31,19 @@ export function useDetallesLista(id: string | undefined) {
   const [activeItem, setActiveItem] = useState<ExtendedArticulo | null>(null);
 
   const cargarData = useCallback(async () => {
-    if (!id) return;
+    if (!id) {
+      setLoading(false);
+      setLista(null);
+      setArticulosEnLista([]);
+      return;
+    }
+
     try {
       setLoading(true);
+      // Resetear datos previos para evitar visualización "stale"
+      setLista(null);
+      setArticulosEnLista([]);
+
       const [listaRef, articulosRel, todosLosArticulos, todasLasMedidas] = await Promise.all([
         listaUseCases.obtenerListas().then(l => l.find(x => x.id === id)),
         listaArticuloUseCases.obtenerArticulosDeLista(id),
@@ -41,7 +51,12 @@ export function useDetallesLista(id: string | undefined) {
         medidaUseCases.obtenerMedidas()
       ]);
 
-      if (listaRef) setLista(listaRef);
+      if (listaRef) {
+        setLista(listaRef);
+      } else {
+        setLista(null);
+      }
+
       setCatalogArticulos(todosLosArticulos);
       setMedidasCatalog(todasLasMedidas);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Pressable } from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Pressable, Alert } from 'react-native';
 import { Colors } from '../constants/theme';
 import { Medida } from '../../domain';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,21 @@ export function QuantityModal({
   }, [visible, initialQuantity, initialMedidaId, medidasCatalog]);
 
   const handleSave = () => {
-    onSave(parseFloat(localQuantity) || 1, localMedidaId);
+    const qty = parseFloat(localQuantity);
+
+    // Validación de cantidad: debe ser un número válido y estrictamente mayor que cero
+    if (isNaN(qty) || qty <= 0) {
+      Alert.alert(t('error'), t('errorQuantityRequired'));
+      return;
+    }
+
+    // Validación de unidad de medida: no puede estar vacía
+    if (!localMedidaId) {
+      Alert.alert(t('error'), t('errorMeasureRequired'));
+      return;
+    }
+
+    onSave(qty, localMedidaId);
   };
 
   return (

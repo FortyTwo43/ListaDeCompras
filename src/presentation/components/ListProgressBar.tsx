@@ -8,13 +8,16 @@ interface ListProgressBarProps {
 }
 
 export function ListProgressBar({ progreso, theme }: ListProgressBarProps) {
+  // Asegurar que el progreso siempre sea un número entre 0 y 100 (evitar NaN o desbordamientos)
+  const safeProgress = Math.min(Math.max(Number(progreso) || 0, 0), 100);
+
   return (
     <View style={styles.topProgressWrapper}>
       <View style={[styles.progressBarBackground, { backgroundColor: theme.primary }]}>
         <View
           style={[
             styles.progressBarFill,
-            { backgroundColor: Colors.dark.success, width: `${progreso}%` }
+            { backgroundColor: Colors.dark.success, width: `${safeProgress}%` }
           ]}
         />
       </View>

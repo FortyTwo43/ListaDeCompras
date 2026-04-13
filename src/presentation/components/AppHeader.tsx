@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '../context/ThemeContext';
 import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
@@ -20,10 +21,11 @@ export interface AppHeaderOptions {
 export function AppHeader({ options, navigation }: BottomTabHeaderProps) {
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   
   // Extraemos tanto las opciones nativas como nuestras opciones personalizadas (Slots)
   const title = options.title || '';
-  const { onSearch, placeholder = 'Buscar...', headerRight, headerLeft } = options as any;
+  const { onSearch, placeholder = t('search'), headerRight, headerLeft } = options as any;
 
   // Estado interno de la Cabecera
   const [isSearching, setIsSearching] = useState(false);
