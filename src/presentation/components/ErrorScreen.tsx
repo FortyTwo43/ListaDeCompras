@@ -5,15 +5,15 @@ import { useAppTheme } from '../context/ThemeContext';
 import { getRandomKaomoji } from '../constants/kaomojis';
 
 interface ErrorScreenProps {
-  error: Error;
+  readonly error: Error;
 }
 
 export function ErrorScreen({ error }: ErrorScreenProps) {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   
-  // Computamos el kaomoji una vez por ciclo de renderizado.
-  const [kaomoji] = useState(getRandomKaomoji());
+  // Usamos un inicializador diferido para que getRandomKaomoji solo se ejecute al montar el componente.
+  const [kaomoji] = useState(() => getRandomKaomoji());
 
   return (
     <View style={[styles.errorContainer, { backgroundColor: theme.background }]}>
