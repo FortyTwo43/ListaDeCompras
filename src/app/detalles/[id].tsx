@@ -119,7 +119,10 @@ export default function DetallesListaScreen() {
           newItemName={newItemName}
           onNewItemNameChange={setNewItemName}
           onBackPress={() => setIsSelecting(false)}
-          onAddPress={() => newItemName.trim() && abrirModalSeleccion({ nombre: newItemName })}
+          onAddPress={() => {
+            const trimmed = newItemName.trim();
+            if (trimmed) abrirModalSeleccion({ nombre: trimmed });
+          }}
           theme={theme}
         />
       )}
