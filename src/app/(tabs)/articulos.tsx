@@ -77,16 +77,17 @@ export default function ArticulosScreen() {
   };
 
   const handleGuardar = async () => {
-    if (!articuloActual.nombre.trim()) {
+    const trimmedName = articuloActual.nombre.trim();
+    if (!trimmedName) {
       Alert.alert("Error", t('errorTitleRequired'));
       return;
     }
 
     try {
       if (articuloActual.id) {
-        await articuloUseCases.actualizarArticulo(articuloActual.id, { nombre: articuloActual.nombre });
+        await articuloUseCases.actualizarArticulo(articuloActual.id, { nombre: trimmedName });
       } else {
-        await articuloUseCases.crearArticulo({ nombre: articuloActual.nombre });
+        await articuloUseCases.crearArticulo({ nombre: trimmedName });
       }
       setModalVisible(false);
       cargarArticulos();

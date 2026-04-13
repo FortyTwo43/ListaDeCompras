@@ -59,7 +59,8 @@ export default function MedidasScreen() {
   }, []);
 
   const handleGuardar = async () => {
-    if (!medidaActual.nombre.trim()) {
+    const trimmedName = medidaActual.nombre.trim();
+    if (!trimmedName) {
       Alert.alert("Error", t('errorTitleRequired'));
       return;
     }
@@ -67,10 +68,10 @@ export default function MedidasScreen() {
     try {
       if (medidaActual.id) {
         // Modo Edición
-        await medidaUseCases.actualizarMedida(medidaActual.id, { nombre: medidaActual.nombre });
+        await medidaUseCases.actualizarMedida(medidaActual.id, { nombre: trimmedName });
       } else {
         // Modo Creación
-        await medidaUseCases.crearMedida({ nombre: medidaActual.nombre });
+        await medidaUseCases.crearMedida({ nombre: trimmedName });
       }
       setModalVisible(false);
       cargarMedidas();

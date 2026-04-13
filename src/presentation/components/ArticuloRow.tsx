@@ -9,13 +9,12 @@ interface ArticuloRowProps {
   nombreArticulo: string;
   nombreMedida: string;
   onToggleEstado: () => void;
-  onEdit: () => void;
   onEditMeasure?: () => void;
   onDelete: () => void;
   isDark?: boolean;
 }
 
-export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado, onEdit, onEditMeasure, onDelete, isDark = true }: ArticuloRowProps) {
+export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado, onEditMeasure, onDelete, isDark = true }: ArticuloRowProps) {
   const theme = isDark ? Colors.dark : Colors.light;
 
   const getIcon = () => {
@@ -35,7 +34,7 @@ export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado
           <MaterialCommunityIcons name={iconInfo.name as any} size={24} color={iconInfo.color} />
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.infoContainer} onPress={onEdit} activeOpacity={0.7}>
+        <View style={styles.infoContainer}>
           <Text 
             style={[
               styles.name, 
@@ -48,7 +47,7 @@ export function ArticuloRow({ item, nombreArticulo, nombreMedida, onToggleEstado
           >
             {nombreArticulo}
           </Text>
-        </TouchableOpacity>
+        </View>
         
 
         <TouchableOpacity style={styles.quantityContainer} onPress={onEditMeasure} activeOpacity={0.7} disabled={!onEditMeasure}>

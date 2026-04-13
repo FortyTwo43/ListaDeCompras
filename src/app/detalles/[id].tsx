@@ -163,7 +163,6 @@ export default function DetallesListaScreen() {
                 nombreMedida={item.nombreMedida}
                 isDark={isDark}
                 onToggleEstado={() => handleToggleEstado(item)}
-                onEdit={() => console.log('Editando', item.nombreArticulo)}
                 onEditMeasure={() => abrirModalEdicionCantidad(item)}
                 onDelete={() => onDeleteClick(item)}
               />
