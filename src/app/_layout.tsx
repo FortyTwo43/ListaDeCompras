@@ -2,6 +2,14 @@ import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider as ContextThemeProvider, useAppTheme } from '../presentation/context/ThemeContext';
 import '../presentation/i18n'; // Activa el sistema de idiomas global
+import { initDatabase } from '../infrastructure/database/sqliteConfig';
+
+// Inicializar la base de datos de manera síncrona
+try {
+  initDatabase();
+} catch (e) {
+  console.error("Error al inicializar SQLite", e);
+}
 
 function RootNavigation() {
   const { t } = useTranslation();

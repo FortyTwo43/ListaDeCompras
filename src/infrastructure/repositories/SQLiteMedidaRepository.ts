@@ -7,11 +7,11 @@ export class SQLiteMedidaRepository implements IMedidaRepository {
   constructor(private db: SQLiteDatabase) {}
 
   async getAll(): Promise<Medida[]> {
-    return await this.db.getAllAsync<Medida>('SELECT * FROM Medidas;');
+    return await this.db.getAllAsync<Medida>('SELECT * FROM Medida;');
   }
 
   async getById(id: string): Promise<Medida | null> {
-    const result = await this.db.getFirstAsync<Medida>('SELECT * FROM Medidas WHERE id = ?;', [id]);
+    const result = await this.db.getFirstAsync<Medida>('SELECT * FROM Medida WHERE id = ?;', [id]);
     return result || null;
   }
 
@@ -20,7 +20,7 @@ export class SQLiteMedidaRepository implements IMedidaRepository {
     const nuevaMedida: Medida = { id, ...entity };
 
     await this.db.runAsync(
-      'INSERT INTO Medidas (id, nombre) VALUES (?, ?);',
+      'INSERT INTO Medida (id, nombre) VALUES (?, ?);',
       [nuevaMedida.id, nuevaMedida.nombre]
     );
 
@@ -34,7 +34,7 @@ export class SQLiteMedidaRepository implements IMedidaRepository {
     const updated: Medida = { ...current, ...entity };
 
     await this.db.runAsync(
-      'UPDATE Medidas SET nombre = ? WHERE id = ?;',
+      'UPDATE Medida SET nombre = ? WHERE id = ?;',
       [updated.nombre, id]
     );
 
@@ -42,6 +42,6 @@ export class SQLiteMedidaRepository implements IMedidaRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.runAsync('DELETE FROM Medidas WHERE id = ?;', [id]);
+    await this.db.runAsync('DELETE FROM Medida WHERE id = ?;', [id]);
   }
 }
